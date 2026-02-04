@@ -3,8 +3,20 @@ import { ModelRecord } from "./client/api";
 import { getQuantization, getSize } from "./utils";
 
 export const OWNER = "mlc-ai";
-export const REPO = "web-llm-chat";
-export const WEBLLM_HOME_URL = "https://webllm.mlc.ai";
+export const REPO = "educhat";
+export const TTS_VOICES = [
+  "F1",
+  "F2",
+  "F3",
+  "F4",
+  "F5",
+  "M1",
+  "M2",
+  "M3",
+  "M4",
+  "M5",
+];
+export const WEBLLM_HOME_URL = "https://gallego.top/educhat";
 export const REPO_URL = `https://github.com/${OWNER}/${REPO}`;
 export const ISSUE_URL = `https://github.com/${OWNER}/${REPO}/issues`;
 
@@ -58,12 +70,12 @@ export const EXPORT_MESSAGE_CLASS_NAME = "export-markdown";
 export const DEFAULT_INPUT_TEMPLATE = `{{input}}`; // input / time / model / lang
 
 export const DEFAULT_SYSTEM_TEMPLATE = `
-You are an AI large language model assistant trained by {{provider}}.
-You are currently engaging with users on WebLLM Chat, an open-source AI Chatbot UI developed by MLC.ai (Machine Learning Compilation).
-Model display_name:  {{model}}
-The current date and time is {{time}}.
-Latex inline format: \\(x^2\\) 
-Latex block format: $$e=mc^2$$
+Eres un asistente de modelo de lenguaje grande de IA entrenado por {{provider}}.
+: Actualmente estás interactuando con usuarios en Edu Chat, una interfaz de chatbot de IA de código abierto desarrollada por MLC.ai (Machine Learning Compilation).
+Nombre del modelo: {{model}}
+La fecha y hora actual es {{time}}.
+Formato de Latex en línea: \\(x^2\\) 
+Formato de bloque Latex: $$e=mc^2$$
 `;
 
 export enum ModelFamily {
@@ -1562,3 +1574,40 @@ export const LOG_LEVELS = {
   ERROR: 4,
   SILENT: 5,
 };
+
+export const STT_MODELS = [
+  { name: "Xenova/whisper-tiny", label: "Tiny (Fastest)" },
+  { name: "Xenova/whisper-tiny.en", label: "Tiny English (Fastest)" },
+  { name: "Xenova/whisper-base", label: "Base (Balanced)" },
+  { name: "Xenova/whisper-base.en", label: "Base English (Balanced)" },
+  { name: "Xenova/whisper-small", label: "Small (Better Quality)" },
+  { name: "Xenova/whisper-small.en", label: "Small English (Better Quality)" },
+  { name: "Xenova/whisper-medium", label: "Medium (High Quality, Slow)" },
+  {
+    name: "Xenova/whisper-medium.en",
+    label: "Medium English (High Quality, Slow)",
+  },
+  { name: "Xenova/whisper-large-v2", label: "Large v2 (Very Slow)" },
+  {
+    name: "Xenova/whisper-large-v3",
+    label: "Large v3 (Best Quality, Very Slow)",
+  },
+  { name: "Xenova/distil-large-v2", label: "Distil Large v2 (Faster Large)" },
+  { name: "Xenova/distil-large-v3", label: "Distil Large v3 (Faster Large)" },
+  { name: "Xenova/distil-small.en", label: "Distil Small English" },
+];
+
+export const STT_LANGUAGES = [
+  { name: "auto", label: "Auto Detect" },
+  { name: "en", label: "English" },
+  { name: "es", label: "Spanish" },
+  { name: "gl", label: "Galician" },
+];
+
+export const TTS_LANGUAGES = [
+  { name: "en", label: "English" },
+  { name: "es", label: "Spanish" },
+  { name: "fr", label: "French" },
+  { name: "ko", label: "Korean" },
+  { name: "pt", label: "Portuguese" },
+];

@@ -1,3 +1,4 @@
+import "./public-path";
 import log from "loglevel";
 import { WebWorkerMLCEngineHandler } from "@mlc-ai/web-llm";
 

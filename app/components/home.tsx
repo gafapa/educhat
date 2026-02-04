@@ -15,7 +15,7 @@ import {
 } from "react-router-dom";
 import { ServiceWorkerMLCEngine } from "@mlc-ai/web-llm";
 
-import MlcIcon from "../icons/mlc.svg";
+import LogoIcon from "../icons/logo.svg";
 import LoadingIcon from "../icons/three-dots.svg";
 
 import Locale from "../locales";
@@ -27,15 +27,14 @@ import { SideBar } from "./sidebar";
 import { useAppConfig } from "../store/config";
 import { WebLLMApi } from "../client/webllm";
 import { ModelClient, useChatStore } from "../store";
-import { MLCLLMContext, WebLLMContext } from "../context";
-import { MlcLLMApi } from "../client/mlcllm";
+import { WebLLMContext } from "../context";
 
 export function Loading(props: { noLogo?: boolean }) {
   return (
     <div className={styles["loading-content"] + " no-dark"}>
       {!props.noLogo && (
-        <div className={styles["loading-content-logo"] + " no-dark mlc-icon"}>
-          <MlcIcon />
+        <div className={styles["loading-content-logo"] + " no-dark"}>
+          <LogoIcon />
         </div>
       )}
       <LoadingIcon />
@@ -121,7 +120,7 @@ const useHasHydrated = () => {
 const loadAsyncFonts = () => {
   const linkEl = document.createElement("link");
   linkEl.rel = "stylesheet";
-  linkEl.href = "/fonts/font.css";
+  linkEl.href = "./fonts/font.css";
   document.head.appendChild(linkEl);
 };
 
@@ -141,7 +140,7 @@ function Screen() {
       className={
         styles.container +
         ` ${shouldTightBorder ? styles["tight-container"] : styles.container} ${
-          getLang() === "ar" ? styles["rtl-screen"] : ""
+          (getLang() as string) === "ar" ? styles["rtl-screen"] : ""
         }`
       }
     >
@@ -168,19 +167,19 @@ const useWebLLM = () => {
 
   const isWebllmInitialized = useRef(false);
 
-  // If service worker registration timeout, fall back to web worker
-  const timeout = setTimeout(() => {
-    if (!isWebllmInitialized.current && !isWebllmActive && !webllm) {
-      log.info(
-        "Service Worker activation is timed out. Falling back to use web worker.",
-      );
-      setWebLLM(new WebLLMApi("webWorker", config.logLevel));
-      setWebllmAlive(true);
-    }
-  }, 2_000);
-
   // Initialize WebLLM engine
   useEffect(() => {
+    // If service worker registration timeout, fall back to web worker
+    const timeout = setTimeout(() => {
+      if (!isWebllmInitialized.current && !isWebllmActive && !webllm) {
+        log.info(
+          "Service Worker activation is timed out. Falling back to use web worker.",
+        );
+        setWebLLM(new WebLLMApi("webWorker", config.logLevel));
+        setWebllmAlive(true);
+      }
+    }, 10_000);
+
     if ("serviceWorker" in navigator) {
       log.info("Service Worker API is available and in use.");
       navigator.serviceWorker.ready.then(() => {
@@ -237,10 +236,19 @@ const useWebLLM = () => {
       isWebllmInitialized.current = true;
       clearTimeout(timeout);
     }
+
+    return () => {
+      clearTimeout(timeout);
+    };
   }, []);
 
-  if (webllm?.webllm.type === "serviceWorker") {
-    setInterval(() => {
+  // Heartbeat monitoring for service worker engine - must be in useEffect with cleanup
+  useEffect(() => {
+    if (webllm?.webllm.type !== "serviceWorker") {
+      return;
+    }
+
+    const heartbeatInterval = setInterval(() => {
       if (webllm) {
         // 10s per heartbeat, dead after 30 seconds of inactivity
         setWebllmAlive(
@@ -249,19 +257,13 @@ const useWebLLM = () => {
         );
       }
     }, 10_000);
-  }
+
+    return () => {
+      clearInterval(heartbeatInterval);
+    };
+  }, [webllm]);
+
   return { webllm, isWebllmActive };
-};
-
-const useMlcLLM = () => {
-  const config = useAppConfig();
-  const [mlcllm, setMlcLlm] = useState<MlcLLMApi | undefined>(undefined);
-
-  useEffect(() => {
-    setMlcLlm(new MlcLLMApi(config.modelConfig.mlc_endpoint));
-  }, [config.modelConfig.mlc_endpoint, setMlcLlm]);
-
-  return mlcllm;
 };
 
 const useLoadUrlParam = () => {
@@ -319,32 +321,23 @@ const useLogLevel = (webllm?: WebLLMApi) => {
   }, [config.logLevel, webllm?.webllm?.engine]);
 };
 
-const useModels = (mlcllm: MlcLLMApi | undefined) => {
+const useModels = () => {
   const config = useAppConfig();
 
   useEffect(() => {
-    if (config.modelClientType == ModelClient.WEBLLM) {
-      config.setModels(DEFAULT_MODELS);
-    } else if (config.modelClientType == ModelClient.MLCLLM_API) {
-      if (mlcllm) {
-        mlcllm.models().then((models) => {
-          config.setModels(models);
-        });
-      }
-    }
-  }, [config.modelClientType, mlcllm]);
+    config.setModels(DEFAULT_MODELS);
+  }, []);
 };
 
 export function Home() {
   const hasHydrated = useHasHydrated();
   const { webllm, isWebllmActive } = useWebLLM();
-  const mlcllm = useMlcLLM();
 
   useSwitchTheme();
   useHtmlLang();
   useLoadUrlParam();
   useStopStreamingMessages();
-  useModels(mlcllm);
+  useModels();
   useLogLevel(webllm);
 
   if (!hasHydrated || !webllm || !isWebllmActive) {
@@ -359,9 +352,7 @@ export function Home() {
     <ErrorBoundary>
       <Router>
         <WebLLMContext.Provider value={webllm}>
-          <MLCLLMContext.Provider value={mlcllm}>
-            <Screen />
-          </MLCLLMContext.Provider>
+          <Screen />
         </WebLLMContext.Provider>
       </Router>
     </ErrorBoundary>

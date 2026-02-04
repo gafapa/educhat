@@ -20,6 +20,7 @@ const pt: PartialLocaleType = {
       CompressedHistory: "Prompt de Memória Histórica Comprimida",
       Export: "Exportar Todas as Mensagens como Markdown",
       Copy: "Copiar",
+      Play: "Reproduzir",
       Stop: "Parar",
       Retry: "Tentar Novamente",
       Delete: "Deletar",

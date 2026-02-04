@@ -22,7 +22,7 @@ import {
 import CopyIcon from "../icons/copy.svg";
 import LoadingIcon from "../icons/three-dots.svg";
 import ShareIcon from "../icons/share.svg";
-import MlcIcon from "../icons/mlc.svg";
+import LogoIcon from "../icons/logo.svg";
 import MlcIconPng from "../icons/mlc.png";
 
 import DownloadIcon from "../icons/download.svg";
@@ -302,7 +302,7 @@ function ExportAvatar(props: { avatar: string }) {
   if (props.avatar === DEFAULT_TEMPLATE_AVATAR) {
     return (
       <div className="bot-avatar no-dark">
-        <MlcIcon />
+        <LogoIcon />
       </div>
     );
   }
@@ -391,11 +391,11 @@ export function ImagePreviewer(props: {
       >
         <div className={styles["chat-info"]}>
           <div className={styles["logo"] + " no-dark"}>
-            <MlcIcon />
+            <LogoIcon />
           </div>
 
           <div>
-            <div className={styles["main-title"]}>WebLLM Chat</div>
+            <div className={styles["main-title"]}>{Locale.Title}</div>
             <div className={styles["sub-title"]}>{window.location.host}</div>
           </div>
           <div>

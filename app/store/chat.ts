@@ -60,7 +60,7 @@ export interface ChatSession {
   template: Template;
 }
 
-export const DEFAULT_TOPIC = Locale.Store.DefaultTopic;
+export const DEFAULT_TOPIC = () => Locale.Store.DefaultTopic;
 export const BOT_HELLO: ChatMessage = createMessage({
   role: "assistant",
   content: Locale.Store.BotHello,
@@ -69,7 +69,7 @@ export const BOT_HELLO: ChatMessage = createMessage({
 function createEmptySession(): ChatSession {
   return {
     id: nanoid(),
-    topic: DEFAULT_TOPIC,
+    topic: DEFAULT_TOPIC(),
     memoryPrompt: "",
     messages: [],
     stat: {
@@ -521,7 +521,7 @@ export const useChatStore = createPersistStore(
         const SUMMARIZE_MIN_LEN = 50;
         if (
           config.enableAutoGenerateTitle &&
-          session.topic === DEFAULT_TOPIC &&
+          session.topic === DEFAULT_TOPIC() &&
           countMessages(messages) >= SUMMARIZE_MIN_LEN
         ) {
           const topicMessages = messages.concat(
@@ -542,7 +542,7 @@ export const useChatStore = createPersistStore(
               get().updateCurrentSession(
                 (session) =>
                   (session.topic =
-                    message.length > 0 ? trimTopic(message) : DEFAULT_TOPIC),
+                    message.length > 0 ? trimTopic(message) : DEFAULT_TOPIC()),
               );
             },
           });

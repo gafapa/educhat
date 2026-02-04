@@ -62,17 +62,38 @@ self.addEventListener("activate", (event) => {
   }
 });
 
-// This declares the value of `injectionPoint` to TypeScript.
-// `injectionPoint` is the string that will be replaced by the
-// actual precache manifest. By default, this string is set to
-// `"self.__SW_MANIFEST"`.
+// This declares the value of the injection point to TypeScript.
+// The string is removed to prevent "Multiple instances" error.
 declare global {
   interface WorkerGlobalScope extends SerwistGlobalConfig {
     __SW_MANIFEST: (PrecacheEntry | string)[] | undefined;
   }
 }
+
+// Transform manifest to use relative paths (strip leading slash and add ./)
+// We must reference the injection point only once.
+const originalManifest = self.__SW_MANIFEST;
+const manifest = originalManifest?.map((entry) => {
+  let url = "";
+  if (typeof entry === "string") {
+    url = entry;
+  } else if (entry && entry.url) {
+    url = entry.url;
+  }
+
+  if (url.startsWith("/")) {
+    const newUrl = "." + url;
+    if (typeof entry === "string") return newUrl;
+    return { ...entry, url: newUrl };
+  }
+  return entry;
+});
+
+console.log("SW: Original Manifest", originalManifest);
+console.log("SW: Transformed Manifest", manifest);
+
 const serwist = new Serwist({
-  precacheEntries: self.__SW_MANIFEST,
+  precacheEntries: manifest,
   skipWaiting: true,
   clientsClaim: true,
   navigationPreload: true,

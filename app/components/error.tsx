@@ -1,8 +1,6 @@
 import React from "react";
 import { IconButton } from "./button";
-import GithubIcon from "../icons/github.svg";
 import ResetIcon from "../icons/reload.svg";
-import { ISSUE_URL } from "../constant";
 import Locale from "../locales";
 import { showConfirm } from "./ui-lib";
 
@@ -33,23 +31,16 @@ export class ErrorBoundary extends React.Component<any, IErrorBoundaryState> {
       // Render error message
       return (
         <div className="error">
-          <h2>Oops, something went wrong!</h2>
+          <h2>{Locale.Store.Error}</h2>
           <pre>
             <code>{this.state.error?.toString()}</code>
             <code>{this.state.info?.componentStack}</code>
           </pre>
 
-          <div style={{ display: "flex", justifyContent: "space-between" }}>
-            <a href={ISSUE_URL} className="report">
-              <IconButton
-                text="Report This Error"
-                icon={<GithubIcon />}
-                bordered
-              />
-            </a>
+          <div style={{ display: "flex", justifyContent: "flex-end" }}>
             <IconButton
               icon={<ResetIcon />}
-              text="Clear All Data"
+              text={Locale.Settings.Danger.Clear.Action}
               onClick={async () => {
                 if (await showConfirm(Locale.Settings.Danger.Reset.Confirm)) {
                   this.clearAndSaveData();

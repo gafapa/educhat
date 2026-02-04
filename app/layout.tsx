@@ -3,13 +3,16 @@ import "./styles/globals.scss";
 import "./styles/markdown.scss";
 import "./styles/highlight.scss";
 import { getClientConfig } from "./config/client";
+import { SWRegister } from "./components/sw-register";
 import { type Metadata } from "next";
 
+const TITLE = "Edu Chat";
+const DESCRIPTION = "Your Private and Local AI Assistant.";
+
 export const metadata: Metadata = {
-  metadataBase: new URL("https://chat.webllm.ai"),
-  title: "WebLLM Chat",
-  description:
-    "Chat with AI large language models running natively in your browser. Enjoy private, server-free, seamless AI conversations.",
+  metadataBase: new URL("https://gallego.top/educhat"),
+  title: TITLE,
+  description: DESCRIPTION,
   keywords: [
     "WebLLM",
     "AI chat",
@@ -32,34 +35,37 @@ export const metadata: Metadata = {
     { media: "(prefers-color-scheme: dark)", color: "#151515" },
   ],
   appleWebApp: {
-    title: "WebLLM Chat",
+    title: "Edu Chat",
     statusBarStyle: "default",
+  },
+  other: {
+    "mobile-web-app-capable": "yes",
   },
   openGraph: {
     type: "website",
-    url: "https://chat.webllm.ai",
-    title: "WebLLM Chat",
+    url: "https://gallego.top/educhat",
+    title: "Edu Chat",
     description:
       "Chat with AI large language models running natively in your browser",
-    siteName: "WebLLM Chat",
+    siteName: "Edu Chat",
     images: [
       {
-        url: "https://chat.webllm.ai/mlc-logo.png",
+        url: "https://gallego.top/educhat/logo.png",
         width: 360,
         height: 360,
-        alt: "WebLLM Chat - Browser-based AI conversation",
+        alt: "Edu Chat - Browser-based AI conversation",
       },
     ],
   },
   twitter: {
     card: "summary_large_image",
-    title: "WebLLM Chat",
+    title: "Edu Chat",
     description:
       "Chat with AI large language models running natively in your browser",
-    images: ["https://chat.webllm.ai/mlc-logo.png"],
+    images: ["https://gallego.top/educhat/logo.png"],
   },
   alternates: {
-    canonical: "https://chat.webllm.ai",
+    canonical: "https://gallego.top/educhat",
   },
 };
 
@@ -74,7 +80,6 @@ const cspHeader = `
     object-src 'none';
     base-uri 'self';
     form-action 'self';
-    frame-ancestors 'none';
     upgrade-insecure-requests;
 `;
 
@@ -99,22 +104,22 @@ export default function RootLayout({
         <link
           rel="apple-touch-icon"
           sizes="180x180"
-          href="/apple-touch-icon.png"
+          href="./apple-touch-icon.png"
         />
         <link
           rel="icon"
           type="image/png"
           sizes="32x32"
-          href="/favicon-32x32.png"
+          href="./favicon-32x32.png"
         />
         <link
           rel="icon"
           type="image/png"
           sizes="16x16"
-          href="/favicon-16x16.png"
+          href="./favicon-16x16.png"
         />
-        <link rel="manifest" href="/site.webmanifest" />
-        <link rel="mask-icon" href="/safari-pinned-tab.svg" color="#062578" />
+        <link rel="manifest" href="./site.webmanifest" />
+        <link rel="mask-icon" href="./safari-pinned-tab.svg" color="#062578" />
         <meta name="msapplication-TileColor" content="#2b5797" />
         <meta name="theme-color" content="#ffffff" />
         <script
@@ -123,8 +128,8 @@ export default function RootLayout({
             __html: JSON.stringify({
               "@context": "https://schema.org",
               "@type": "WebApplication",
-              name: "WebLLM Chat",
-              url: "https://chat.webllm.ai",
+              name: "Edu Chat",
+              url: "https://gallego.top/educhat",
               description:
                 "Chat with AI large language models running natively in your browser. Enjoy private, server-free, seamless AI conversations.",
               applicationCategory: "Artificial Intelligence",
@@ -136,13 +141,16 @@ export default function RootLayout({
               operatingSystem: "Web Browser",
               creator: {
                 "@type": "Organization",
-                name: "WebLLM",
+                name: "Edu Chat",
               },
             }),
           }}
         />
       </head>
-      <body>{children}</body>
+      <body>
+        <SWRegister />
+        {children}
+      </body>
     </html>
   );
 }

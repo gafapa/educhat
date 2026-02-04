@@ -141,6 +141,8 @@ interface ModalProps {
   defaultMax?: boolean;
   footer?: React.ReactNode;
   onClose?: () => void;
+  className?: string;
+  style?: React.CSSProperties;
 }
 export function Modal(props: ModalProps) {
   useEffect(() => {
@@ -163,8 +165,10 @@ export function Modal(props: ModalProps) {
   return (
     <div
       className={
-        styles["modal-container"] + ` ${isMax && styles["modal-container-max"]}`
+        styles["modal-container"] +
+        ` ${isMax && styles["modal-container-max"]} ${props.className || ""}`
       }
+      style={props.style}
     >
       <div className={styles["modal-header"]}>
         <div className={styles["modal-title"]}>{props.title}</div>
@@ -333,7 +337,9 @@ export function Select(
       <select className={styles["select-with-icon-select"]} {...otherProps}>
         {children}
       </select>
-      <DownIcon className={styles["select-with-icon-icon"]} />
+      <div className={styles["select-with-icon-icon"]}>
+        <DownIcon />
+      </div>
     </div>
   );
 }

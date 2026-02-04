@@ -58,6 +58,16 @@ export class WebLLMApi implements LLMApi {
       };
     } else {
       log.info("Create WebWorkerMLCEngine");
+      if (typeof Worker === "undefined") {
+        log.warn("Web Worker is not available in this environment.");
+        // This Case only happens if the class is instantiated on the server side
+        // We initialize as webWorker but without an engine to avoid crash
+        this.webllm = {
+          type: "webWorker",
+          engine: null as any,
+        };
+        return;
+      }
       this.webllm = {
         type: "webWorker",
         engine: new WebWorkerMLCEngine(

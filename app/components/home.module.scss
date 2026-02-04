@@ -151,7 +151,9 @@
 }
 
 .sidebar-logo {
-  height: 48px;
+  height: auto;
+  width: 60px;
+  max-width: 100%;
 
   svg {
     width: 100%;
@@ -359,10 +361,12 @@
 
   .loading-content-logo {
     position: relative;
-    width: 60px;
+    width: 160px;
+    max-width: 40vw;
 
     svg {
       width: 100%;
+      height: auto;
     }
   }
 }

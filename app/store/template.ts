@@ -29,7 +29,7 @@ export const createEmptyTemplate = () =>
   ({
     id: nanoid(),
     avatar: DEFAULT_TEMPLATE_AVATAR,
-    name: DEFAULT_TOPIC,
+    name: DEFAULT_TOPIC(),
     context: [],
     lang: getLang(),
     builtin: false,

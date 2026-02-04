@@ -28,10 +28,12 @@ import EditIcon from "../icons/rename.svg";
 import ConfirmIcon from "../icons/confirm.svg";
 import ImageIcon from "../icons/image.svg";
 import BrainIcon from "../icons/brain.svg";
+import MicIcon from "../icons/mic.svg";
 
 import BottomIcon from "../icons/bottom.svg";
 import StopIcon from "../icons/pause.svg";
 import RobotIcon from "../icons/robot.svg";
+import SpeakerIcon from "../icons/speaker.svg";
 
 import {
   ChatMessage,
@@ -89,9 +91,11 @@ import { ExportMessageModal } from "./exporter";
 import { MultimodalContent } from "../client/api";
 import { Template, useTemplateStore } from "../store/template";
 import Image from "next/image";
-import { MLCLLMContext, WebLLMContext } from "../context";
+import { WebLLMContext } from "../context";
 import { ChatImage } from "../typing";
 import ModelSelect from "./model-select";
+import { SpeechService } from "../client/speech";
+import { TtsService } from "../client/tts";
 
 export function ScrollDownToast(prop: { show: boolean; onclick: () => void }) {
   return (
@@ -387,6 +391,7 @@ function ChatAction(props: {
   onClick: () => void;
   fullWidth?: boolean;
   selected?: boolean;
+  type?: "primary" | "danger" | "normal";
 }) {
   const iconRef = useRef<HTMLDivElement>(null);
   const textRef = useRef<HTMLDivElement>(null);
@@ -406,9 +411,11 @@ function ChatAction(props: {
     });
   }
 
+  const type = props.type ?? "normal";
+
   return props.fullWidth ? (
     <div
-      className={`${styles["chat-input-action"]} clickable ${styles["full-width"]} ${props.selected ? styles["selected"] : ""}`}
+      className={`${styles["chat-input-action"]} clickable ${styles["full-width"]} ${props.selected ? styles["selected"] : ""} ${styles[type]}`}
       onClick={props.onClick}
     >
       <div ref={iconRef} className={styles["icon"]}>
@@ -420,7 +427,7 @@ function ChatAction(props: {
     </div>
   ) : (
     <div
-      className={`${styles["chat-input-action"]} clickable ${props.selected ? styles["selected"] : ""}`}
+      className={`${styles["chat-input-action"]} clickable ${props.selected ? styles["selected"] : ""} ${styles[type]}`}
       onClick={() => {
         props.onClick();
         setTimeout(updateWidth, 1);
@@ -476,6 +483,54 @@ function useScrollToBottom(
   };
 }
 
+// Basic Modal for showing download progress
+function STTLoadModal(props: { progress: any; onClose: () => void }) {
+  if (!props.progress) return null;
+
+  const percent = props.progress.progress || 0;
+  const loaded = (props.progress.loaded / 1024 / 1024).toFixed(2);
+  const total = (props.progress.total / 1024 / 1024).toFixed(2);
+
+  return (
+    <div className="modal-mask">
+      <Modal
+        title={Locale.Chat.Actions.DownloadingModel}
+        onClose={props.onClose}
+        actions={[]}
+        style={{ maxWidth: "400px", margin: "0 auto" }}
+      >
+        <div style={{ padding: "20px", textAlign: "center" }}>
+          <h3>{Locale.Chat.Actions.DownloadingModel}</h3>
+          <div
+            style={{
+              margin: "20px 0",
+              height: "10px",
+              background: "#eee",
+              borderRadius: "5px",
+              overflow: "hidden",
+            }}
+          >
+            <div
+              style={{
+                width: `${percent}%`,
+                height: "100%",
+                background: "var(--primary)",
+                transition: "width 0.2s",
+              }}
+            ></div>
+          </div>
+          <p>
+            {props.progress.file} ({Math.round(percent)}%)
+          </p>
+          <p className="text-gray-500 text-sm">
+            {loaded}MB / {total}MB
+          </p>
+        </div>
+      </Modal>
+    </div>
+  );
+}
+
 export function ChatActions(props: {
   uploadImage: () => void;
   setAttachImages: (images: ChatImage[]) => void;
@@ -485,6 +540,8 @@ export function ChatActions(props: {
   showPromptHints: () => void;
   hitBottom: boolean;
   uploading: boolean;
+  showModelSelector: boolean;
+  setShowModelSelector: (show: boolean) => void;
 }) {
   const config = useAppConfig();
   const chatStore = useChatStore();
@@ -492,7 +549,6 @@ export function ChatActions(props: {
   // switch model
   const currentModel = config.modelConfig.model;
   const models = config.models;
-  const [showModelSelector, setShowModelSelector] = useState(false);
   const [showUploadImage, setShowUploadImage] = useState(false);
 
   useEffect(() => {
@@ -513,6 +569,7 @@ export function ChatActions(props: {
           icon={props.uploading ? <LoadingButtonIcon /> : <ImageIcon />}
         />
       )}
+
       <ChatAction
         onClick={props.showPromptSetting}
         text={Locale.Chat.Actions.EditConversation}
@@ -550,15 +607,15 @@ export function ChatActions(props: {
         />
       )}
       <ChatAction
-        onClick={() => setShowModelSelector(true)}
+        onClick={() => props.setShowModelSelector(true)}
         text={currentModel}
         icon={<RobotIcon />}
         fullWidth
       />
-      {showModelSelector && (
+      {props.showModelSelector && (
         <ModelSelect
           onClose={() => {
-            setShowModelSelector(false);
+            props.setShowModelSelector(false);
           }}
           availableModels={models.map((m) => m.name)}
           onSelectModel={(modelName) => {
@@ -612,10 +669,9 @@ function _Chat() {
   const [uploading, setUploading] = useState(false);
   const [showEditPromptModal, setShowEditPromptModal] = useState(false);
   const webllm = useContext(WebLLMContext)!;
-  const mlcllm = useContext(MLCLLMContext)!;
+  const [showModelSelector, setShowModelSelector] = useState(false);
 
-  const llm =
-    config.modelClientType === ModelClient.MLCLLM_API ? mlcllm : webllm;
+  const llm = webllm;
 
   const models = config.models;
 
@@ -733,6 +789,75 @@ function _Chat() {
   useEffect(() => {
     chatStore.resetGeneratingStatus();
   }, []);
+
+  // TTS Handler - Auto-speak removed as per user request
+  // const lastSpokenMessageId = useRef<string>("");
+  // useEffect(() => {...}, [session.messages]);
+
+  // Recording State
+  const [isRecording, setIsRecording] = useState(false);
+  const [downloadProgress, setDownloadProgress] = useState<any>(null);
+  const mediaRecorderRef = useRef<MediaRecorder | null>(null);
+
+  const toggleRecording = async () => {
+    if (isRecording) {
+      // Stop recording
+      mediaRecorderRef.current?.stop();
+      setIsRecording(false);
+    } else {
+      // Start recording
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({
+          audio: true,
+        });
+        const mediaRecorder = new MediaRecorder(stream);
+        const audioChunks: Blob[] = [];
+
+        mediaRecorder.ondataavailable = (event) => {
+          audioChunks.push(event.data);
+        };
+
+        mediaRecorder.onstop = async () => {
+          const audioBlob = new Blob(audioChunks, { type: "audio/wav" });
+          if (!downloadProgress) {
+            showToast(Locale.Chat.Actions.Transcribing);
+          }
+
+          try {
+            const text = await SpeechService.getInstance().transcribe(
+              audioBlob,
+              (data) => {
+                // Check if it's a progress event for model files
+                if (data.status === "progress") {
+                  setDownloadProgress(data);
+                } else if (data.status === "done") {
+                  // File done
+                } else if (data.status === "ready") {
+                  setDownloadProgress(null);
+                }
+              },
+            );
+            setDownloadProgress(null); // Ensure modal closes
+            setUserInput(userInput + (userInput.length > 0 ? " " : "") + text);
+          } catch (e) {
+            console.error(e);
+            setDownloadProgress(null);
+            showToast(Locale.Chat.Actions.TranscribingFailed);
+          } finally {
+            // Stop all tracks to release microphone
+            stream.getTracks().forEach((track) => track.stop());
+          }
+        };
+
+        mediaRecorder.start();
+        mediaRecorderRef.current = mediaRecorder;
+        setIsRecording(true);
+      } catch (e) {
+        console.error("Error accessing microphone:", e);
+        showToast(Locale.Chat.Actions.MicrophoneDenied);
+      }
+    }
+  };
 
   useEffect(() => {
     chatStore.updateCurrentSession((session) => {
@@ -1073,7 +1198,7 @@ function _Chat() {
             className={`window-header-main-title ${styles["chat-body-main-title"]}`}
             onClickCapture={() => setShowEditPromptModal(true)}
           >
-            {!session.topic ? DEFAULT_TOPIC : session.topic}
+            {!session.topic ? DEFAULT_TOPIC() : session.topic}
           </div>
           <div className="window-header-sub-title">
             {Locale.Chat.SubTitle(session.messages.length)}
@@ -1280,6 +1405,18 @@ function _Chat() {
                                 />
                               </>
                             )}
+                            <ChatAction
+                              text={Locale.Chat.Actions.Play}
+                              icon={<SpeakerIcon />}
+                              onClick={() => {
+                                const text = getMessageTextContent(message);
+                                if (text) {
+                                  TtsService.getInstance()
+                                    .speak(text)
+                                    .catch(console.error);
+                                }
+                              }}
+                            />
                           </div>
                         </div>
                       )}
@@ -1346,14 +1483,14 @@ function _Chat() {
                     {message.role === "assistant" && message.usage && (
                       <>
                         <div>
-                          {`Prefill: ${message.usage.extra.prefill_tokens_per_s.toFixed(
+                          {`${Locale.Chat.Metrics.Prefill}: ${message.usage.extra.prefill_tokens_per_s.toFixed(
                             1,
-                          )} tok/s,`}
+                          )} ${Locale.Chat.Metrics.TokensPerSec},`}
                         </div>
                         <div>
-                          {`Decode: ${message.usage.extra.decode_tokens_per_s.toFixed(
+                          {`${Locale.Chat.Metrics.Decode}: ${message.usage.extra.decode_tokens_per_s.toFixed(
                             1,
-                          )} tok/s,`}
+                          )} ${Locale.Chat.Metrics.TokensPerSec},`}
                         </div>
                       </>
                     )}
@@ -1371,6 +1508,12 @@ function _Chat() {
         })}
       </div>
       <div className={styles["chat-input-panel"]}>
+        {downloadProgress && (
+          <STTLoadModal
+            progress={downloadProgress}
+            onClose={() => setDownloadProgress(null)}
+          />
+        )}
         <ScrollDownToast onclick={scrollToBottom} show={!hitBottom} />
         <PromptHints prompts={promptHints} onPromptSelect={onPromptSelect} />
 
@@ -1393,6 +1536,8 @@ function _Chat() {
             setUserInput("/");
             onSearch("");
           }}
+          showModelSelector={showModelSelector}
+          setShowModelSelector={setShowModelSelector}
         />
         <label
           className={`${styles["chat-input-panel-inner"]} ${
@@ -1443,21 +1588,31 @@ function _Chat() {
             </div>
           )}
           {isStreaming ? (
-            <IconButton
-              icon={<StopIcon />}
-              text={Locale.Chat.InputActions.Stop}
-              className={styles["chat-input-send"]}
-              type="primary"
-              onClick={() => onUserStop()}
-            />
+            <div className={styles["chat-input-actions-inner"]}>
+              <IconButton
+                icon={<StopIcon />}
+                text={Locale.Chat.InputActions.Stop}
+                className={styles["chat-input-send"]}
+                type="primary"
+                onClick={() => onUserStop()}
+              />
+            </div>
           ) : (
-            <IconButton
-              icon={<SendWhiteIcon />}
-              text={Locale.Chat.Send}
-              className={styles["chat-input-send"]}
-              type="primary"
-              onClick={() => onSubmit(userInput)}
-            />
+            <div className={styles["chat-input-actions-inner"]}>
+              <IconButton
+                icon={isRecording ? <LoadingButtonIcon /> : <MicIcon />}
+                className={styles["chat-input-send"]}
+                type="primary"
+                onClick={toggleRecording}
+              />
+              <IconButton
+                icon={<SendWhiteIcon />}
+                text={Locale.Chat.Send}
+                className={styles["chat-input-send"]}
+                type="primary"
+                onClick={() => onSubmit(userInput)}
+              />
+            </div>
           )}
         </label>
       </div>

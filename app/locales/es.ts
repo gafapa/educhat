@@ -2,20 +2,26 @@ import { SubmitKey } from "../store/config";
 import type { PartialLocaleType } from "./index";
 
 const es: PartialLocaleType = {
+  Title: "Edu Chat",
   WIP: "En construcción...",
   ChatItem: {
     ChatItemCount: (count: number) => `${count} mensajes`,
   },
   Chat: {
-    SubTitle: (count: number) => `${count} mensajes con ChatGPT`,
+    SubTitle: (count: number) => `${count} mensajes con Edu Chat`,
     Actions: {
       ChatList: "Ir a la lista de chats",
       CompressedHistory: "Historial de memoria comprimido",
       Export: "Exportar todos los mensajes como Markdown",
       Copy: "Copiar",
+      Play: "Reproducir",
       Stop: "Detener",
       Retry: "Reintentar",
-      Delete: "Delete",
+      Delete: "Borrar",
+      Transcribing: "Transcribiendo...",
+      TranscribingFailed: "Falló la transcripción",
+      MicrophoneDenied: "Acceso al micrófono denegado",
+      DownloadingModel: "Descargando modelo Whisper...",
     },
     Rename: "Renombrar chat",
     Typing: "Escribiendo...",
@@ -30,13 +36,18 @@ const es: PartialLocaleType = {
     Config: {
       Reset: "Reset to Default",
     },
+    Metrics: {
+      Prefill: "Prellenado",
+      Decode: "Decodificación",
+      TokensPerSec: "tok/s",
+    },
   },
   Export: {
     Title: "Todos los mensajes",
     Copy: "Copiar todo",
     Download: "Descargar",
     MessageFromYou: "Mensaje de ti",
-    MessageFromWebLLM: "Mensaje de WebLLM",
+    MessageFromWebLLM: "Mensaje de Edu Chat",
   },
   Memory: {
     Title: "Historial de memoria",
@@ -62,14 +73,16 @@ const es: PartialLocaleType = {
       All: "Todos los idiomas",
     },
     Avatar: "Avatar",
-    FontSize: {
-      Title: "Tamaño de fuente",
-      SubTitle: "Ajustar el tamaño de fuente del contenido del chat",
+    STT: {
+      Title: "Voz a Texto",
+      SubTitle: "Configuraciones de voz a texto",
+      Model: "Modelo Whisper",
+      Language: "Idioma Whisper",
     },
     InjectSystemPrompts: {
       Title: "Inyectar Prompts del Sistema",
       SubTitle:
-        "Agregar forzosamente un prompt de sistema simulado de ChatGPT al comienzo de la lista de mensajes en cada solicitud",
+        "Agregar forzosamente un prompt de sistema simulado de Edu Chat al comienzo de la lista de mensajes en cada solicitud",
     },
     Update: {
       Version: (x: string) => `Versión: ${x}`,
@@ -99,6 +112,8 @@ const es: PartialLocaleType = {
         Title: "Prompt List",
         Add: "Add One",
         Search: "Search Prompts",
+        New: "Prompt vacío",
+        NewContent: "Contenido del prompt vacío",
       },
       EditModal: {
         Title: "Edit Prompt",
@@ -142,6 +157,12 @@ const es: PartialLocaleType = {
       Title: "Penalización de frecuencia",
       SubTitle:
         "Un valor mayor que disminuye la probabilidad de repetir la misma línea",
+    },
+    CacheType: {
+      Title: "Tipo de caché",
+      SubTitle: "Usar IndexDB o API de caché para guardar pesos del modelo",
+      Cache: "Caché",
+      IndexDB: "Base de datos Indexada",
     },
   },
   Store: {

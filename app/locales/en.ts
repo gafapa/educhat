@@ -3,7 +3,7 @@ import { SubmitKey } from "../store/config";
 // if you are adding a new translation, please use PartialLocaleType instead of LocaleType
 
 const en = {
-  Title: "WebLLM Chat",
+  Title: "Edu Chat",
   Subtitle: "AI Models Running in Browser",
   WIP: "Coming Soon...",
   ChatItem: {
@@ -23,10 +23,15 @@ const en = {
       CompressedHistory: "Compressed History Memory Prompt",
       Export: "Export All Messages as Markdown",
       Copy: "Copy",
+      Play: "Play",
       Stop: "Stop",
       Share: "Share",
       Retry: "Retry",
       Delete: "Delete",
+      Transcribing: "Transcribing...",
+      TranscribingFailed: "Transcription failed",
+      MicrophoneDenied: "Microphone access denied",
+      DownloadingModel: "Downloading Whisper Model...",
       Edit: "Edit",
       EditConversation: "Edit Conversation",
     },
@@ -72,13 +77,18 @@ const en = {
       Confirm: "Confirm",
     },
     IsContext: "System Prompt",
+    Metrics: {
+      Prefill: "Prefill",
+      Decode: "Decode",
+      TokensPerSec: "tok/s",
+    },
   },
   Export: {
     Title: "Export Messages",
     Copy: "Copy All",
     Download: "Download",
     MessageFromYou: "Message From You",
-    MessageFromWebLLM: "Message From WebLLM",
+    MessageFromWebLLM: "Message From Edu Chat",
     Share: "Share",
     Format: {
       Title: "Export Format",
@@ -191,6 +201,8 @@ const en = {
         Title: "Prompt List",
         Add: "Add One",
         Search: "Search Prompts",
+        New: "Empty Prompt",
+        NewContent: "Empty Prompt Content",
       },
       EditModal: {
         Title: "Edit Conversation",
@@ -217,20 +229,6 @@ const en = {
       NoAccess: "Enter API Key to check balance",
     },
     Model: "Model",
-    ModelClientType: {
-      Title: "Model Type",
-      WebLlm: "WebLLM Models",
-      MlcLlm: "MLC-LLM REST API (Advanced)",
-    },
-
-    MlcLlmApi: {
-      Title: "API Endpoint",
-      SubTitle: "Endpoint URL created by MLC-LLM serve command",
-      Connect: {
-        Title: "Connect",
-        SubTitle: "Connect to the API",
-      },
-    },
     ContextWindowLength: {
       Title: "Context Window Length",
       SubTitle: "The maximum number of tokens for the context window",
@@ -260,6 +258,8 @@ const en = {
     CacheType: {
       Title: "Cache Type",
       SubTitle: "Use IndexDB or Cache API to store model weights",
+      Cache: "Cache",
+      IndexDB: "Index DB",
     },
     LogLevel: {
       Title: "Logging Level",
@@ -268,6 +268,12 @@ const en = {
     EnableThinking: {
       Title: "Enable Thinking",
       SubTitle: "Allow reasoning models to think step-by-step",
+    },
+    STT: {
+      Title: "Voice to Text",
+      SubTitle: "Speech to text settings",
+      Model: "Whisper Model",
+      Language: "Whisper Language",
     },
   },
   Store: {
@@ -384,10 +390,7 @@ const en = {
 
   ServiceWorker: {
     Error:
-      "The WebLLM worker has lost connection. Please close all tabs of WebLLM Chat and try opening WebLLM Chat again.",
-  },
-  MlcLLMConnect: {
-    Title: "Connect to MLC-LLM API Endpoint",
+      "The WebLLM worker has lost connection. Please close all tabs of Edu Chat and try opening Edu Chat again.",
   },
 };
 

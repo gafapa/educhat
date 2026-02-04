@@ -14,6 +14,12 @@ import { ModelConfigList } from "./model-config";
 
 import { IconButton } from "./button";
 import {
+  STT_LANGUAGES,
+  STT_MODELS,
+  TTS_LANGUAGES,
+  TTS_VOICES,
+} from "../constant";
+import {
   SubmitKey,
   useChatStore,
   Theme,
@@ -118,8 +124,8 @@ function UserPromptModal(props: { onClose?: () => void }) {
               const promptId = promptStore.add({
                 id: nanoid(),
                 createdAt: Date.now(),
-                title: "Empty Prompt",
-                content: "Empty Prompt Content",
+                title: Locale.Settings.Prompt.Modal.New,
+                content: Locale.Settings.Prompt.Modal.NewContent,
               });
               setEditingPromptId(promptId);
             }}
@@ -312,6 +318,23 @@ export function Settings() {
               }
             ></input>
           </ListItem>
+          <ListItem
+            title={Locale.Settings.EnableThinking.Title}
+            subTitle={Locale.Settings.EnableThinking.SubTitle}
+          >
+            <input
+              type="checkbox"
+              checked={config.enableThinking}
+              onChange={(e) =>
+                config.update(
+                  (config) => (config.enableThinking = e.currentTarget.checked),
+                )
+              }
+            ></input>
+          </ListItem>
+        </List>
+
+        <List>
           <ListItem
             title={Locale.Settings.HistoryCount.Title}
             subTitle={Locale.Settings.HistoryCount.SubTitle}
@@ -530,10 +553,10 @@ export function Settings() {
               }}
             >
               <option value="cache" key="cache">
-                Cache
+                {Locale.Settings.CacheType.Cache}
               </option>
               <option value="index_db" key="index_db">
-                Index DB
+                {Locale.Settings.CacheType.IndexDB}
               </option>
             </Select>
           </ListItem>
@@ -563,6 +586,91 @@ export function Settings() {
         {shouldShowPromptModal && (
           <UserPromptModal onClose={() => setShowPromptModal(false)} />
         )}
+
+        <List>
+          <ListItem title={Locale.Settings.STT.Model}>
+            <Select
+              value={config.sttConfig?.model || "Xenova/whisper-tiny"}
+              onChange={(e) => {
+                config.update((config) => {
+                  config.sttConfig = {
+                    ...config.sttConfig,
+                    model: e.currentTarget.value,
+                  };
+                });
+              }}
+            >
+              {STT_MODELS.map((model) => (
+                <option value={model.name} key={model.name}>
+                  {model.label}
+                </option>
+              ))}
+            </Select>
+          </ListItem>
+          <ListItem
+            title={Locale.Settings.STT.Language}
+            subTitle={Locale.Settings.STT.SubTitle}
+          >
+            <Select
+              value={config.sttConfig?.language || "auto"}
+              onChange={(e) => {
+                config.update((config) => {
+                  config.sttConfig = {
+                    ...config.sttConfig,
+                    language: e.currentTarget.value,
+                  };
+                });
+              }}
+            >
+              {STT_LANGUAGES.map((lang) => (
+                <option value={lang.name} key={lang.name}>
+                  {lang.label}
+                </option>
+              ))}
+            </Select>
+          </ListItem>
+        </List>
+
+        <List>
+          <ListItem title="TTS Language" subTitle="Select TTS Language">
+            <Select
+              value={config.ttsConfig?.language || "en"}
+              onChange={(e) => {
+                config.update((config) => {
+                  config.ttsConfig = {
+                    ...config.ttsConfig,
+                    language: e.currentTarget.value,
+                  };
+                });
+              }}
+            >
+              {TTS_LANGUAGES.map((lang) => (
+                <option value={lang.name} key={lang.name}>
+                  {lang.label}
+                </option>
+              ))}
+            </Select>
+          </ListItem>
+          <ListItem title="TTS Voice" subTitle="Select TTS Voice">
+            <Select
+              value={config.ttsConfig?.voice || "F1"}
+              onChange={(e) => {
+                config.update((config) => {
+                  config.ttsConfig = {
+                    ...config.ttsConfig,
+                    voice: e.currentTarget.value,
+                  };
+                });
+              }}
+            >
+              {TTS_VOICES.map((voice) => (
+                <option value={voice} key={voice}>
+                  {voice}
+                </option>
+              ))}
+            </Select>
+          </ListItem>
+        </List>
 
         <DangerItems />
       </div>

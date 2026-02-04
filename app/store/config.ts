@@ -31,7 +31,6 @@ export enum CacheType {
 
 export enum ModelClient {
   WEBLLM = "webllm",
-  MLCLLM_API = "mlc-llm-api",
 }
 
 export type ModelConfig = {
@@ -44,9 +43,6 @@ export type ModelConfig = {
   max_tokens: number;
   presence_penalty: number;
   frequency_penalty: number;
-
-  // MLC LLM configs
-  mlc_endpoint: string;
 };
 
 export type ConfigType = {
@@ -77,6 +73,16 @@ export type ConfigType = {
   logLevel: LogLevel;
   enableThinking: boolean;
   modelConfig: ModelConfig;
+
+  sttConfig: {
+    model: string;
+    language: string;
+  };
+
+  ttsConfig: {
+    language: string;
+    voice: string;
+  };
 };
 
 const DEFAULT_MODEL = "Llama-3.2-1B-Instruct-q4f32_1-MLC";
@@ -96,8 +102,6 @@ const DEFAULT_MODEL_CONFIG: ModelConfig = {
 
   // Use recommended config to overwrite above parameters
   ...DEFAULT_MODELS.find((m) => m.name === DEFAULT_MODEL)!.recommended_config,
-
-  mlc_endpoint: "",
 };
 
 export const DEFAULT_CONFIG: ConfigType = {
@@ -128,6 +132,16 @@ export const DEFAULT_CONFIG: ConfigType = {
   enableThinking: false,
 
   modelConfig: DEFAULT_MODEL_CONFIG,
+
+  sttConfig: {
+    model: "Xenova/whisper-tiny",
+    language: "es",
+  },
+
+  ttsConfig: {
+    language: "es",
+    voice: "F1",
+  },
 };
 
 export type ChatConfig = typeof DEFAULT_CONFIG;

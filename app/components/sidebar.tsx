@@ -4,9 +4,7 @@ import styles from "./home.module.scss";
 
 import { IconButton } from "./button";
 import SettingsIcon from "../icons/gear.svg";
-import GithubIcon from "../icons/github.svg";
 import InternetIcon from "../icons/internet.svg";
-import MlcIcon from "../icons/mlc.svg";
 import AddIcon from "../icons/add.svg";
 import DeleteIcon from "../icons/delete.svg";
 import TemplateIcon from "../icons/chat.svg";
@@ -14,6 +12,7 @@ import DragIcon from "../icons/drag.svg";
 import LightIcon from "../icons/light.svg";
 import DarkIcon from "../icons/dark.svg";
 import AutoIcon from "../icons/auto.svg";
+import LogoIcon from "../icons/logo.svg";
 
 import Locale from "../locales";
 
@@ -25,7 +24,6 @@ import {
   MIN_SIDEBAR_WIDTH,
   NARROW_SIDEBAR_WIDTH,
   Path,
-  REPO_URL,
   WEBLLM_HOME_URL,
 } from "../constant";
 
@@ -169,8 +167,8 @@ export function SideBar(props: { className?: string }) {
           <div className={styles["sidebar-title"]}>{Locale.Title}</div>
           <div className={styles["sidebar-sub-title"]}>{Locale.Subtitle}</div>
         </div>
-        <div className={styles["sidebar-logo"] + " no-dark mlc-icon"}>
-          <MlcIcon />
+        <div className={styles["sidebar-logo"] + " no-dark"}>
+          <LogoIcon />
         </div>
       </div>
 
@@ -221,11 +219,6 @@ export function SideBar(props: { className?: string }) {
           <div className={styles["sidebar-action"]}>
             <a href={WEBLLM_HOME_URL} target="_blank" rel="noopener noreferrer">
               <IconButton icon={<InternetIcon />} shadow />
-            </a>
-          </div>
-          <div className={styles["sidebar-action"]}>
-            <a href={REPO_URL} target="_blank" rel="noopener noreferrer">
-              <IconButton icon={<GithubIcon />} shadow />
             </a>
           </div>
           <div className={styles["sidebar-action"]}>

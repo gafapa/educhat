@@ -1,6 +1,8 @@
 import withSerwistInit from "@serwist/next";
+import { createRequire } from "module";
+const require = createRequire(import.meta.url);
 
-const mode = process.env.BUILD_MODE ?? "export";
+const mode = process.env.BUILD_MODE;
 console.log("[Next] build mode", mode);
 
 const disableChunk = !!process.env.DISABLE_CHUNK || mode === "export";
@@ -23,35 +25,60 @@ const cspHeader = `
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  swcMinify: false,
   webpack(config, { isServer }) {
     config.module.rules.push({
       test: /\.svg$/,
       use: ["@svgr/webpack"],
     });
 
+
+
+
+
     config.resolve.fallback = {
       child_process: false,
     };
 
+
+
     if (!isServer) {
       config.resolve.fallback = {
-        ...config.resolve.fallback, // if you miss it, all the other options in fallback, specified
-        // by next.js will be dropped. Doesn't make much sense, but how it is
-        fs: false, // the solution
+        ...config.resolve.fallback,
+        fs: false,
         module: false,
         perf_hooks: false,
+        "import.meta": false, // prevent import.meta error
+      };
+
+      config.resolve.alias = {
+        ...config.resolve.alias,
+        // Removed @huggingface/transformers alias to allow proper module resolution for WebGPU
+        "node:fs": false,
+        "node:path": false,
+        "node:util": false,
+        "node:module": false,
+        "node:child_process": false,
+        "node:crypto": false,
+        "node:events": false,
+        "node:os": false,
+        "node:stream": false,
+        "node:url": false,
       };
     }
 
     return config;
   },
   output: mode,
+  basePath: "/educhat",
+  assetPrefix: "/educhat/",
   images: {
     unoptimized: mode === "export",
   },
-  experimental: {
-    forceSwcTransforms: true,
-  },
+  // Removed transpilePackages for @huggingface/transformers to allow proper worker loading
+  // experimental: {
+  //   forceSwcTransforms: true,
+  // },
 };
 
 const CorsHeaders = [
@@ -98,4 +125,5 @@ if (mode !== "export") {
 export default withSerwistInit({
   swSrc: "app/worker/service-worker.ts",
   swDest: "public/sw.js",
+  register: false,
 })(nextConfig);

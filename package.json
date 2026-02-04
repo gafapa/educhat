@@ -1,5 +1,5 @@
 {
-  "name": "web-llm-chat",
+  "name": "educhat",
   "version": "0.2",
   "private": false,
   "license": "Apache-2.0",
@@ -12,7 +12,7 @@
     "export:dev": "cross-env BUILD_MODE=export next dev",
     "prompts": "node ./scripts/fetch-prompts.mjs",
     "prepare": "husky install",
-    "proxy-dev": "sh ./scripts/init-proxy.sh && proxychains -f ./scripts/proxychains.conf yarn dev"
+    "proxy-dev": "sh ./scripts/init-proxy.sh && proxychains -f ./scripts/proxychains.conf npm run dev"
   },
   "dependencies": {
     "@fortaine/fetch-event-source": "^3.0.6",
@@ -20,6 +20,7 @@
     "@mlc-ai/web-llm": "^0.2.79",
     "@serwist/next": "^9.0.2",
     "@svgr/webpack": "^6.5.1",
+    "@huggingface/transformers": "^3.8.0",
     "emoji-picker-react": "^4.9.2",
     "fuse.js": "^7.0.0",
     "html-to-image": "^1.11.11",
@@ -67,7 +68,7 @@
   "resolutions": {
     "lint-staged/yaml": "^2.2.2"
   },
-  "packageManager": "yarn@1.22.19",
+  "packageManager": "npm@10.8.2",
   "browser": {
     "fs": false,
     "path": false,
@@ -77,8 +78,18 @@
     "constants": false,
     "module": false,
     "os": false,
-    "process": false,
     "util": false,
-    "assert": false
+    "assert": false,
+    "node:fs": false,
+    "node:path": false,
+    "node:os": false,
+    "node:stream": false,
+    "node:url": false,
+    "node:crypto": false,
+    "node:events": false,
+    "node:process": false,
+    "node:util": false,
+    "node:module": false,
+    "node:child_process": false
   }
 }
