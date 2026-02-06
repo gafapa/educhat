@@ -543,7 +543,7 @@ export function Settings() {
             subTitle={Locale.Settings.CacheType.SubTitle}
           >
             <Select
-              value="cache"
+              value={config.cacheType}
               onChange={(e) => {
                 updateConfig(
                   (config) =>

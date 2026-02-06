@@ -27,10 +27,6 @@ export enum Path {
   Templates = "/templates",
 }
 
-export enum ApiPath {
-  Cors = "",
-}
-
 export enum SlotID {
   AppBody = "app-body",
   CustomModel = "custom-model",

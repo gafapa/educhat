@@ -1,3 +1,4 @@
+import "./public-path";
 import { pipeline, env } from "@huggingface/transformers";
 
 // Configure transformers.js - use WASM backend
@@ -13,15 +14,20 @@ class TTSWorker {
   synthesizer: any = null;
   modelId = "onnx-community/Supertonic-TTS-2-ONNX";
 
-  async initialize(): Promise<void> {
+  private getPreferredDevice(): "webgpu" | "wasm" {
+    const hasWebGPU = !!(self as any).navigator?.gpu;
+    return hasWebGPU ? "webgpu" : "wasm";
+  }
+
+  private async initWithDevice(device: "webgpu" | "wasm"): Promise<void> {
     try {
       self.postMessage({
         type: "status",
-        data: { progress: 0.1, text: "Loading TTS model..." },
+        data: { progress: 0.1, text: `Loading TTS (${device})...` },
       });
 
       this.synthesizer = await pipeline("text-to-speech", this.modelId, {
-        device: "webgpu",
+        device,
         progress_callback: (progress: any) => {
           if (progress.status === "progress") {
             const pct = progress.progress || 0;
@@ -38,12 +44,22 @@ class TTSWorker {
 
       self.postMessage({ type: "ready" });
     } catch (error: any) {
+      if (device === "webgpu") {
+        console.warn("TTS WebGPU init failed, falling back to WASM.", error);
+        await this.initWithDevice("wasm");
+        return;
+      }
       console.error("TTS Worker Init Error:", error);
       self.postMessage({
         type: "error",
         data: error?.message || "Failed to initialize TTS",
       });
     }
+  }
+
+  async initialize(): Promise<void> {
+    const device = this.getPreferredDevice();
+    await this.initWithDevice(device);
   }
 
   wrapWithLanguageTag(text: string, lang: string): string {

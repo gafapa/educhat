@@ -4,7 +4,7 @@ import "./styles/markdown.scss";
 import "./styles/highlight.scss";
 import { getClientConfig } from "./config/client";
 import { SWRegister } from "./components/sw-register";
-import { type Metadata } from "next";
+import { type Metadata, type Viewport } from "next";
 
 const TITLE = "Edu Chat";
 const DESCRIPTION = "Your Private and Local AI Assistant.";
@@ -25,15 +25,6 @@ export const metadata: Metadata = {
   publisher: "WebLLM",
   creator: "WebLLM",
   robots: "index, follow",
-  viewport: {
-    width: "device-width",
-    initialScale: 1,
-    maximumScale: 1,
-  },
-  themeColor: [
-    { media: "(prefers-color-scheme: light)", color: "#fafafa" },
-    { media: "(prefers-color-scheme: dark)", color: "#151515" },
-  ],
   appleWebApp: {
     title: "Edu Chat",
     statusBarStyle: "default",
@@ -69,10 +60,21 @@ export const metadata: Metadata = {
   },
 };
 
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 1,
+  userScalable: false,
+  themeColor: [
+    { media: "(prefers-color-scheme: light)", color: "#fafafa" },
+    { media: "(prefers-color-scheme: dark)", color: "#151515" },
+  ],
+};
+
 const cspHeader = `
     default-src 'self';
-    script-src 'self' 'unsafe-eval' 'unsafe-inline';
-    worker-src 'self';
+    script-src 'self' 'unsafe-eval' 'unsafe-inline' https://cdn.jsdelivr.net;
+    worker-src 'self' https://cdn.jsdelivr.net;
     connect-src 'self' blob: data: https: http:;
     style-src 'self' 'unsafe-inline';
     img-src 'self' blob: data: https:;
@@ -97,10 +99,6 @@ export default function RootLayout({
         />
         <meta name="config" content={JSON.stringify(getClientConfig())} />
         <meta name="referrer" content="strict-origin-when-cross-origin" />
-        <meta
-          name="viewport"
-          content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
-        />
         <link
           rel="apple-touch-icon"
           sizes="180x180"
@@ -121,7 +119,6 @@ export default function RootLayout({
         <link rel="manifest" href="./site.webmanifest" />
         <link rel="mask-icon" href="./safari-pinned-tab.svg" color="#062578" />
         <meta name="msapplication-TileColor" content="#2b5797" />
-        <meta name="theme-color" content="#ffffff" />
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{

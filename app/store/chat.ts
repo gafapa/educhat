@@ -15,7 +15,11 @@ import { RequestMessage, MultimodalContent, LLMApi } from "../client/api";
 import { estimateTokenLength } from "../utils/token";
 import { nanoid } from "nanoid";
 import { createPersistStore } from "../utils/store";
-import { ChatCompletionFinishReason, CompletionUsage } from "@mlc-ai/web-llm";
+import {
+  ChatCompletionFinishReason,
+  CompletionUsage,
+  InitProgressReport,
+} from "@mlc-ai/web-llm";
 import { ChatImage } from "../typing";
 
 export type ChatMessage = RequestMessage & {
@@ -280,7 +284,15 @@ export const useChatStore = createPersistStore(
         get().summarizeSession(llm);
       },
 
-      onUserInput(content: string, llm: LLMApi, attachImages?: ChatImage[]) {
+      onUserInput(
+        content: string,
+        llm: LLMApi,
+        attachImages?: ChatImage[],
+        options?: {
+          onInitProgress?: (report: InitProgressReport) => void;
+          onInitDone?: () => void;
+        },
+      ) {
         const modelConfig = useAppConfig.getState().modelConfig;
 
         const userContent = fillTemplateWith(content, useAppConfig.getState());
@@ -349,6 +361,8 @@ export const useChatStore = createPersistStore(
             stream: true,
             enable_thinking: useAppConfig.getState().enableThinking,
           },
+          onInitProgress: options?.onInitProgress,
+          onInitDone: options?.onInitDone,
           onUpdate(message) {
             botMessage.streaming = true;
             if (message) {
@@ -666,8 +680,12 @@ export const useChatStore = createPersistStore(
 
       updateStat(message: ChatMessage) {
         get().updateCurrentSession((session) => {
-          session.stat.charCount += message.content.length;
-          // TODO: should update chat count and word count
+          const text = getMessageTextContent(message);
+          const trimmed = text.trim();
+          session.stat.charCount += text.length;
+          session.stat.wordCount +=
+            trimmed.length > 0 ? trimmed.split(/\s+/).length : 0;
+          session.stat.tokenCount += estimateTokenLength(text);
         });
       },
 

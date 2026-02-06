@@ -166,23 +166,43 @@ const useWebLLM = () => {
   const [isWebllmActive, setWebllmAlive] = useState(false);
 
   const isWebllmInitialized = useRef(false);
+  const logLevelRef = useRef(config.logLevel);
+
+  useEffect(() => {
+    logLevelRef.current = config.logLevel;
+  }, [config.logLevel]);
 
   // Initialize WebLLM engine
   useEffect(() => {
+    let disposed = false;
+    let sendEventInterval: ReturnType<typeof setInterval> | undefined;
+    let webGPUCheckCallback: ((event: MessageEvent) => void) | undefined;
+
+    isWebllmInitialized.current = false;
+    setWebllmAlive(false);
+    setWebLLM(undefined);
+
+    const createInstance = (type: "serviceWorker" | "webWorker") => {
+      if (disposed) return;
+      setWebLLM(new WebLLMApi(type, logLevelRef.current, config.cacheType));
+      setWebllmAlive(true);
+      isWebllmInitialized.current = true;
+    };
+
     // If service worker registration timeout, fall back to web worker
     const timeout = setTimeout(() => {
-      if (!isWebllmInitialized.current && !isWebllmActive && !webllm) {
+      if (!isWebllmInitialized.current && !disposed) {
         log.info(
           "Service Worker activation is timed out. Falling back to use web worker.",
         );
-        setWebLLM(new WebLLMApi("webWorker", config.logLevel));
-        setWebllmAlive(true);
+        createInstance("webWorker");
       }
     }, 10_000);
 
     if ("serviceWorker" in navigator) {
       log.info("Service Worker API is available and in use.");
       navigator.serviceWorker.ready.then(() => {
+        if (disposed) return;
         log.info("Service Worker is activated.");
         // Check whether WebGPU is available in Service Worker
         const request = {
@@ -191,11 +211,11 @@ const useWebLLM = () => {
           content: "",
         };
 
-        const sendEventInterval = setInterval(() => {
+        sendEventInterval = setInterval(() => {
           navigator.serviceWorker.controller?.postMessage(request);
         }, 200);
 
-        const webGPUCheckCallback = (event: MessageEvent) => {
+        webGPUCheckCallback = (event: MessageEvent) => {
           const message = event.data;
           if (message.kind === "return" && message.uuid === request.uuid) {
             const isWebGPUAvailable = message.content;
@@ -204,22 +224,19 @@ const useWebLLM = () => {
                 ? "Service Worker has WebGPU Available."
                 : "Service Worker does not have available WebGPU.",
             );
-            if (!webllm && !isWebllmActive) {
-              setWebLLM(
-                new WebLLMApi(
-                  isWebGPUAvailable ? "serviceWorker" : "webWorker",
-                  config.logLevel,
-                ),
-              );
-              setWebllmAlive(true);
-              isWebllmInitialized.current = true;
+            if (!isWebllmInitialized.current) {
+              createInstance(isWebGPUAvailable ? "serviceWorker" : "webWorker");
               clearTimeout(timeout);
             }
-            navigator.serviceWorker.removeEventListener(
-              "message",
-              webGPUCheckCallback,
-            );
-            clearInterval(sendEventInterval);
+            if (webGPUCheckCallback) {
+              navigator.serviceWorker.removeEventListener(
+                "message",
+                webGPUCheckCallback,
+              );
+            }
+            if (sendEventInterval) {
+              clearInterval(sendEventInterval);
+            }
           }
         };
         navigator.serviceWorker.addEventListener(
@@ -231,16 +248,24 @@ const useWebLLM = () => {
       log.info(
         "Service Worker API is unavailable. Falling back to use web worker.",
       );
-      setWebLLM(new WebLLMApi("webWorker", config.logLevel));
-      setWebllmAlive(true);
-      isWebllmInitialized.current = true;
+      createInstance("webWorker");
       clearTimeout(timeout);
     }
 
     return () => {
+      disposed = true;
       clearTimeout(timeout);
+      if (sendEventInterval) {
+        clearInterval(sendEventInterval);
+      }
+      if (webGPUCheckCallback) {
+        navigator.serviceWorker?.removeEventListener(
+          "message",
+          webGPUCheckCallback,
+        );
+      }
     };
-  }, []);
+  }, [config.cacheType]);
 
   // Heartbeat monitoring for service worker engine - must be in useEffect with cleanup
   useEffect(() => {
@@ -271,21 +296,25 @@ const useLoadUrlParam = () => {
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
+    const parseNumberParam = (
+      key: string,
+      parser: (value: string) => number,
+    ) => {
+      const raw = params.get(key);
+      if (raw === null) return null;
+      const parsed = parser(raw);
+      return Number.isFinite(parsed) ? parsed : null;
+    };
+
+    const modelParam = params.get("model");
+
     let modelConfig: any = {
-      model: params.get("model"),
-      temperature: params.has("temperature")
-        ? parseFloat(params.get("temperature")!)
-        : null,
-      top_p: params.has("top_p") ? parseFloat(params.get("top_p")!) : null,
-      max_tokens: params.has("max_tokens")
-        ? parseInt(params.get("max_tokens")!)
-        : null,
-      presence_penalty: params.has("presence_penalty")
-        ? parseFloat(params.get("presence_penalty")!)
-        : null,
-      frequency_penalty: params.has("frequency_penalty")
-        ? parseFloat(params.get("frequency_penalty")!)
-        : null,
+      model: modelParam && modelParam.length > 0 ? modelParam : null,
+      temperature: parseNumberParam("temperature", parseFloat),
+      top_p: parseNumberParam("top_p", parseFloat),
+      max_tokens: parseNumberParam("max_tokens", (v) => parseInt(v, 10)),
+      presence_penalty: parseNumberParam("presence_penalty", parseFloat),
+      frequency_penalty: parseNumberParam("frequency_penalty", parseFloat),
     };
     Object.keys(modelConfig).forEach((key) => {
       // If the value of the key is null, delete the key

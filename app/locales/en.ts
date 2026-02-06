@@ -32,6 +32,8 @@ const en = {
       TranscribingFailed: "Transcription failed",
       MicrophoneDenied: "Microphone access denied",
       DownloadingModel: "Downloading Whisper Model...",
+      Processing: "Processing...",
+      LoadingModel: "Loading Model...",
       Edit: "Edit",
       EditConversation: "Edit Conversation",
     },

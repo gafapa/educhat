@@ -261,7 +261,7 @@ export function showToast(
   action?: ToastProps["action"],
   delay = 3000,
   parent?: HTMLElement,
-) {
+): () => void {
   const div = document.createElement("div");
   div.className = styles.show;
 
@@ -286,6 +286,7 @@ export function showToast(
   }, delay);
 
   root.render(<Toast content={content} action={action} onClose={close} />);
+  return close;
 }
 
 export type InputProps = React.HTMLProps<HTMLTextAreaElement> & {

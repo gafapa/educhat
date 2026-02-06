@@ -1,4 +1,8 @@
-import { ChatCompletionFinishReason, CompletionUsage } from "@mlc-ai/web-llm";
+import {
+  ChatCompletionFinishReason,
+  CompletionUsage,
+  InitProgressReport,
+} from "@mlc-ai/web-llm";
 import { CacheType, Model } from "../store";
 import { ModelFamily } from "../constant";
 export const ROLES = ["system", "user", "assistant"] as const;
@@ -47,6 +51,8 @@ export interface ChatOptions {
     usage?: CompletionUsage,
   ) => void;
   onError?: (err: Error) => void;
+  onInitProgress?: (report: InitProgressReport) => void;
+  onInitDone?: () => void;
 }
 
 export interface LLMUsage {

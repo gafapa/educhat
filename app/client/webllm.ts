@@ -18,6 +18,7 @@ import { ChatOptions, LLMApi, LLMConfig, RequestMessage } from "./api";
 import { LogLevel } from "@mlc-ai/web-llm";
 import { fixMessage } from "../utils";
 import { DEFAULT_MODELS } from "../constant";
+import { CacheType } from "../store";
 
 const KEEP_ALIVE_INTERVAL = 5_000;
 
@@ -41,11 +42,12 @@ export class WebLLMApi implements LLMApi {
   constructor(
     type: "serviceWorker" | "webWorker",
     logLevel: LogLevel = "WARN",
+    cacheType: CacheType = CacheType.Cache,
   ) {
     const engineConfig = {
       appConfig: {
         ...prebuiltAppConfig,
-        useIndexedDBCache: this.llmConfig?.cache === "index_db",
+        useIndexedDBCache: cacheType === CacheType.IndexDB,
       },
       logLevel,
     };
@@ -80,19 +82,35 @@ export class WebLLMApi implements LLMApi {
     }
   }
 
-  private async initModel(onUpdate?: (message: string, chunk: string) => void) {
+  private async initModel(
+    onInitProgress?: (report: InitProgressReport) => void,
+  ) {
     if (!this.llmConfig) {
       throw Error("llmConfig is undefined");
     }
     this.webllm.engine.setInitProgressCallback((report: InitProgressReport) => {
-      onUpdate?.(report.text, report.text);
+      onInitProgress?.(report);
     });
     await this.webllm.engine.reload(this.llmConfig.model, this.llmConfig);
     this.initialized = true;
   }
 
   async chat(options: ChatOptions): Promise<void> {
-    if (!this.initialized || this.isDifferentConfig(options.config)) {
+    let retried = false;
+
+    const ensureInitialized = async (force = false) => {
+      const needsInit =
+        force || !this.initialized || this.isDifferentConfig(options.config);
+      if (!needsInit) return;
+
+      if (force && this.webllm.engine?.unload) {
+        try {
+          await this.webllm.engine.unload();
+        } catch (e) {
+          log.warn("Failed to unload model before reload", e);
+        }
+      }
+
       this.llmConfig = { ...(this.llmConfig || {}), ...options.config };
       // Check if this is a Qwen3 model with thinking mode enabled
       const isQwen3Model = this.llmConfig?.model
@@ -109,49 +127,80 @@ export class WebLLMApi implements LLMApi {
         };
       }
       try {
-        await this.initModel(options.onUpdate);
+        await this.initModel(options.onInitProgress);
+        options.onInitDone?.();
       } catch (err: any) {
         let errorMessage = err.message || err.toString() || "";
         if (errorMessage === "[object Object]") {
           errorMessage = JSON.stringify(err);
         }
+        options.onInitDone?.();
         console.error("Error while initializing the model", errorMessage);
-        options?.onError?.(errorMessage);
-        return;
+        throw new Error(errorMessage);
       }
+    };
+
+    try {
+      await ensureInitialized(false);
+    } catch (err: any) {
+      options?.onError?.(err instanceof Error ? err : new Error(String(err)));
+      return;
     }
 
     let reply: string | null = "";
     let stopReason: ChatCompletionFinishReason | undefined;
     let usage: CompletionUsage | undefined;
-    try {
-      const completion = await this.chatCompletion(
-        !!options.config.stream,
-        options.messages,
-        options.onUpdate,
-      );
-      reply = completion.content;
-      stopReason = completion.stopReason;
-      usage = completion.usage;
-    } catch (err: any) {
-      let errorMessage = err.message || err.toString() || "";
-      if (errorMessage === "[object Object]") {
-        log.error(JSON.stringify(err));
-        errorMessage = JSON.stringify(err);
-      }
-      console.error("Error in chatCompletion", errorMessage);
-      if (
-        errorMessage.includes("WebGPU") &&
-        errorMessage.includes("compatibility chart")
-      ) {
-        // Add WebGPU compatibility chart link
-        errorMessage = errorMessage.replace(
-          "compatibility chart",
-          "[compatibility chart](https://caniuse.com/webgpu)",
+    while (true) {
+      try {
+        const completion = await this.chatCompletion(
+          !!options.config.stream,
+          options.messages,
+          options.onUpdate,
         );
+        reply = completion.content;
+        stopReason = completion.stopReason;
+        usage = completion.usage;
+        break;
+      } catch (err: any) {
+        let errorMessage = err.message || err.toString() || "";
+        if (errorMessage === "[object Object]") {
+          log.error(JSON.stringify(err));
+          errorMessage = JSON.stringify(err);
+        }
+
+        const isModelNotLoaded =
+          err?.name === "ModelNotLoadedError" ||
+          errorMessage.includes("ModelNotLoadedError") ||
+          errorMessage.toLowerCase().includes("model not loaded");
+
+        if (!retried && isModelNotLoaded) {
+          retried = true;
+          this.initialized = false;
+          try {
+            await ensureInitialized(true);
+            continue;
+          } catch (initErr: any) {
+            options.onError?.(
+              initErr instanceof Error ? initErr : new Error(String(initErr)),
+            );
+            return;
+          }
+        }
+
+        console.error("Error in chatCompletion", errorMessage);
+        if (
+          errorMessage.includes("WebGPU") &&
+          errorMessage.includes("compatibility chart")
+        ) {
+          // Add WebGPU compatibility chart link
+          errorMessage = errorMessage.replace(
+            "compatibility chart",
+            "[compatibility chart](https://caniuse.com/webgpu)",
+          );
+        }
+        options.onError?.(new Error(errorMessage));
+        return;
       }
-      options.onError?.(errorMessage);
-      return;
     }
 
     if (reply) {

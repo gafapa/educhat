@@ -96,6 +96,7 @@ import { ChatImage } from "../typing";
 import ModelSelect from "./model-select";
 import { SpeechService } from "../client/speech";
 import { TtsService } from "../client/tts";
+import type { InitProgressReport } from "@mlc-ai/web-llm";
 
 export function ScrollDownToast(prop: { show: boolean; onclick: () => void }) {
   return (
@@ -531,6 +532,51 @@ function STTLoadModal(props: { progress: any; onClose: () => void }) {
   );
 }
 
+function ModelLoadModal(props: {
+  progress: InitProgressReport;
+  onClose: () => void;
+}) {
+  const rawProgress = props.progress.progress ?? 0;
+  const percent = rawProgress <= 1 ? rawProgress * 100 : rawProgress;
+  const clampedPercent = Math.min(100, Math.max(0, percent));
+  const text = props.progress.text || Locale.Chat.Actions.LoadingModel;
+
+  return (
+    <div className="modal-mask">
+      <Modal
+        title={Locale.Chat.Actions.LoadingModel}
+        onClose={props.onClose}
+        actions={[]}
+        style={{ maxWidth: "400px", margin: "0 auto" }}
+      >
+        <div style={{ padding: "20px", textAlign: "center" }}>
+          <h3>{Locale.Chat.Actions.LoadingModel}</h3>
+          <div
+            style={{
+              margin: "20px 0",
+              height: "10px",
+              background: "#eee",
+              borderRadius: "5px",
+              overflow: "hidden",
+            }}
+          >
+            <div
+              style={{
+                width: `${clampedPercent}%`,
+                height: "100%",
+                background: "var(--primary)",
+                transition: "width 0.2s",
+              }}
+            ></div>
+          </div>
+          <p>{text}</p>
+          <p className="text-gray-500 text-sm">{Math.round(clampedPercent)}%</p>
+        </div>
+      </Modal>
+    </div>
+  );
+}
+
 export function ChatActions(props: {
   uploadImage: () => void;
   setAttachImages: (images: ChatImage[]) => void;
@@ -753,7 +799,10 @@ function _Chat() {
 
     if (isStreaming) return;
 
-    chatStore.onUserInput(userInput, llm, attachImages);
+    chatStore.onUserInput(userInput, llm, attachImages, {
+      onInitProgress: (report) => setModelLoadProgress(report),
+      onInitDone: () => setModelLoadProgress(null),
+    });
     setAttachImages([]);
     localStorage.setItem(LAST_INPUT_KEY, userInput);
     setUserInput("");
@@ -797,6 +846,11 @@ function _Chat() {
   // Recording State
   const [isRecording, setIsRecording] = useState(false);
   const [downloadProgress, setDownloadProgress] = useState<any>(null);
+  const [modelLoadProgress, setModelLoadProgress] =
+    useState<InitProgressReport | null>(null);
+  const [sttProcessing, setSttProcessing] = useState(false);
+  const [ttsProcessing, setTtsProcessing] = useState(false);
+  const processingToastCloseRef = useRef<null | (() => void)>(null);
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
 
   const toggleRecording = async () => {
@@ -819,9 +873,7 @@ function _Chat() {
 
         mediaRecorder.onstop = async () => {
           const audioBlob = new Blob(audioChunks, { type: "audio/wav" });
-          if (!downloadProgress) {
-            showToast(Locale.Chat.Actions.Transcribing);
-          }
+          setSttProcessing(true);
 
           try {
             const text = await SpeechService.getInstance().transcribe(
@@ -844,6 +896,7 @@ function _Chat() {
             setDownloadProgress(null);
             showToast(Locale.Chat.Actions.TranscribingFailed);
           } finally {
+            setSttProcessing(false);
             // Stop all tracks to release microphone
             stream.getTracks().forEach((track) => track.stop());
           }
@@ -973,7 +1026,10 @@ function _Chat() {
     // resend the message
     const textContent = getMessageTextContent(userMessage);
     const images = getMessageImages(userMessage);
-    chatStore.onUserInput(textContent, llm, images);
+    chatStore.onUserInput(textContent, llm, images, {
+      onInitProgress: (report) => setModelLoadProgress(report),
+      onInitDone: () => setModelLoadProgress(null),
+    });
     inputRef.current?.focus();
   };
 
@@ -989,28 +1045,9 @@ function _Chat() {
     context.push(copiedHello);
   }
 
-  // preview messages
   const renderMessages = useMemo(() => {
-    return context.concat(session.messages as RenderMessage[]).concat(
-      userInput.length > 0 && config.sendPreviewBubble
-        ? [
-            {
-              ...createMessage({
-                role: "user",
-                content: userInput,
-              }),
-              preview: true,
-            },
-          ]
-        : [],
-    );
-  }, [
-    config.sendPreviewBubble,
-    context,
-    session.messages,
-    session.messages.length,
-    userInput,
-  ]);
+    return context.concat(session.messages as RenderMessage[]);
+  }, [context, session.messages, session.messages.length]);
 
   const [msgRenderIndex, _setMsgRenderIndex] = useState(
     Math.max(0, renderMessages.length - CHAT_PAGE_SIZE),
@@ -1063,6 +1100,32 @@ function _Chat() {
 
   const autoFocus = !isMobileScreen; // wont auto focus on mobile screen
   const showMaxIcon = !isMobileScreen;
+
+  useEffect(() => {
+    const isProcessing = (ttsProcessing || sttProcessing) && !downloadProgress;
+    if (isProcessing && !processingToastCloseRef.current) {
+      processingToastCloseRef.current = showToast(
+        Locale.Chat.Actions.Processing,
+        undefined,
+        2147483647,
+      );
+      return;
+    }
+
+    if (!isProcessing && processingToastCloseRef.current) {
+      processingToastCloseRef.current();
+      processingToastCloseRef.current = null;
+    }
+  }, [sttProcessing, ttsProcessing, downloadProgress]);
+
+  useEffect(() => {
+    return () => {
+      if (processingToastCloseRef.current) {
+        processingToastCloseRef.current();
+        processingToastCloseRef.current = null;
+      }
+    };
+  }, []);
 
   useCommand({
     fill: setUserInput,
@@ -1411,9 +1474,11 @@ function _Chat() {
                               onClick={() => {
                                 const text = getMessageTextContent(message);
                                 if (text) {
+                                  setTtsProcessing(true);
                                   TtsService.getInstance()
                                     .speak(text)
-                                    .catch(console.error);
+                                    .catch(console.error)
+                                    .finally(() => setTtsProcessing(false));
                                 }
                               }}
                             />
@@ -1482,16 +1547,22 @@ function _Chat() {
                   <div className={styles["chat-message-action-date"]}>
                     {message.role === "assistant" && message.usage && (
                       <>
-                        <div>
-                          {`${Locale.Chat.Metrics.Prefill}: ${message.usage.extra.prefill_tokens_per_s.toFixed(
-                            1,
-                          )} ${Locale.Chat.Metrics.TokensPerSec},`}
-                        </div>
-                        <div>
-                          {`${Locale.Chat.Metrics.Decode}: ${message.usage.extra.decode_tokens_per_s.toFixed(
-                            1,
-                          )} ${Locale.Chat.Metrics.TokensPerSec},`}
-                        </div>
+                        {typeof message.usage.extra?.prefill_tokens_per_s ===
+                          "number" && (
+                          <div>
+                            {`${Locale.Chat.Metrics.Prefill}: ${message.usage.extra.prefill_tokens_per_s.toFixed(
+                              1,
+                            )} ${Locale.Chat.Metrics.TokensPerSec},`}
+                          </div>
+                        )}
+                        {typeof message.usage.extra?.decode_tokens_per_s ===
+                          "number" && (
+                          <div>
+                            {`${Locale.Chat.Metrics.Decode}: ${message.usage.extra.decode_tokens_per_s.toFixed(
+                              1,
+                            )} ${Locale.Chat.Metrics.TokensPerSec},`}
+                          </div>
+                        )}
                       </>
                     )}
                     <div>
@@ -1508,6 +1579,12 @@ function _Chat() {
         })}
       </div>
       <div className={styles["chat-input-panel"]}>
+        {modelLoadProgress && (
+          <ModelLoadModal
+            progress={modelLoadProgress}
+            onClose={() => setModelLoadProgress(null)}
+          />
+        )}
         {downloadProgress && (
           <STTLoadModal
             progress={downloadProgress}

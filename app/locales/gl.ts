@@ -23,6 +23,8 @@ const gl: PartialLocaleType = {
       TranscribingFailed: "Fallou a transcrición",
       MicrophoneDenied: "Acceso ao micrófono denegado",
       DownloadingModel: "Descargando modelo Whisper...",
+      LoadingModel: "Cargando modelo...",
+      Processing: "Procesando...",
     },
     Rename: "Renomear chat",
     Typing: "Escribindo...",

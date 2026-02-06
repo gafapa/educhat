@@ -3,6 +3,10 @@ import { createRequire } from "module";
 const require = createRequire(import.meta.url);
 
 const mode = process.env.BUILD_MODE;
+const isProd = process.env.NODE_ENV === "production";
+const useBasePath = isProd || mode === "export";
+const basePath = useBasePath ? "/educhat" : "";
+const assetPrefix = useBasePath ? "/educhat/" : "";
 console.log("[Next] build mode", mode);
 
 const disableChunk = !!process.env.DISABLE_CHUNK || mode === "export";
@@ -10,8 +14,8 @@ console.log("[Next] build with chunk: ", !disableChunk);
 
 const cspHeader = `
     default-src 'self';
-    script-src 'self' 'unsafe-eval' 'unsafe-inline';
-    worker-src 'self';
+    script-src 'self' 'unsafe-eval' 'unsafe-inline' https://cdn.jsdelivr.net;
+    worker-src 'self' https://cdn.jsdelivr.net;
     connect-src 'self' blob: data: https: http:;
     style-src 'self' 'unsafe-inline';
     img-src 'self' blob: data: https:;
@@ -70,8 +74,12 @@ const nextConfig = {
     return config;
   },
   output: mode,
-  basePath: "/educhat",
-  assetPrefix: "/educhat/",
+  basePath,
+  assetPrefix,
+  env: {
+    NEXT_PUBLIC_BASE_PATH: basePath,
+    NEXT_PUBLIC_ASSET_PREFIX: assetPrefix,
+  },
   images: {
     unoptimized: mode === "export",
   },
@@ -81,30 +89,9 @@ const nextConfig = {
   // },
 };
 
-const CorsHeaders = [
-  { key: "Access-Control-Allow-Credentials", value: "true" },
-  { key: "Access-Control-Allow-Origin", value: "*" },
-  {
-    key: "Access-Control-Allow-Methods",
-    value: "*",
-  },
-  {
-    key: "Access-Control-Allow-Headers",
-    value: "*",
-  },
-  {
-    key: "Access-Control-Max-Age",
-    value: "86400",
-  },
-];
-
 if (mode !== "export") {
   nextConfig.headers = async () => {
     return [
-      {
-        source: "/api/:path*",
-        headers: CorsHeaders,
-      },
       {
         source: "/(.*)",
         headers: [

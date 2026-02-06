@@ -22,6 +22,8 @@ const es: PartialLocaleType = {
       TranscribingFailed: "Falló la transcripción",
       MicrophoneDenied: "Acceso al micrófono denegado",
       DownloadingModel: "Descargando modelo Whisper...",
+      LoadingModel: "Cargando modelo...",
+      Processing: "Procesando...",
     },
     Rename: "Renombrar chat",
     Typing: "Escribiendo...",
