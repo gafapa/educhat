@@ -70,12 +70,18 @@ const ModelSelect: React.FC<ModelSearchProps> = ({
   const [selectedFamilies, setSelectedFamilies] = useState<string[]>([]);
   const [expandedModels, setExpandedModels] = useState<Set<string>>(new Set());
 
+  const identifyModelFamily = useCallback(
+    (model: Model): ModelFamily | null => {
+      return config.models.find((m) => m.name === model)?.family || null;
+    },
+    [config.models],
+  );
+
   const determineModelIcon = (model: Model) => {
     const modelFamily = identifyModelFamily(model);
     const modelDetail = modelDetailsList.find(
       (md) => modelFamily && modelFamily === md.family,
     );
-    console.log(model, modelFamily, modelDetail);
     return (
       <div className={style["model-icon"]}>
         {modelDetail?.icon ? <modelDetail.icon /> : <Cpu />}
@@ -83,11 +89,7 @@ const ModelSelect: React.FC<ModelSearchProps> = ({
     );
   };
 
-  const identifyModelFamily = (model: Model): ModelFamily | null => {
-    return config.models.find((m) => m.name === model)?.family || null;
-  };
-
-  const extractModelDetails = (model: string) => {
+  const extractModelDetails = useCallback((model: string) => {
     const parts = model.split("-");
     const displayName: string[] = [];
     const quantBadges: string[] = [];
@@ -109,7 +111,7 @@ const ModelSelect: React.FC<ModelSearchProps> = ({
       displayName: displayName.join(" "),
       quantBadge: quantBadges.length > 0 ? quantBadges.join("-") : null,
     };
-  };
+  }, []);
 
   const sortAndGroupModels = useCallback(
     (models: string[]): [string, string[]][] => {
@@ -139,7 +141,7 @@ const ModelSelect: React.FC<ModelSearchProps> = ({
         },
       );
     },
-    [],
+    [extractModelDetails, identifyModelFamily],
   );
 
   const handleToggleExpand = (modelName: string) => {
@@ -176,7 +178,13 @@ const ModelSelect: React.FC<ModelSearchProps> = ({
     }
 
     setFilteredModels(filtered);
-  }, [searchTerm, availableModels, selectedFamilies, sortAndGroupModels]);
+  }, [
+    searchTerm,
+    availableModels,
+    selectedFamilies,
+    sortAndGroupModels,
+    identifyModelFamily,
+  ]);
 
   const handleToggleFamilyFilter = (family: string) => {
     setSelectedFamilies((prev) =>

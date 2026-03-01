@@ -177,6 +177,19 @@ const useWebLLM = () => {
     let disposed = false;
     let sendEventInterval: ReturnType<typeof setInterval> | undefined;
     let webGPUCheckCallback: ((event: MessageEvent) => void) | undefined;
+    const cleanupWebGPUProbe = () => {
+      if (sendEventInterval) {
+        clearInterval(sendEventInterval);
+        sendEventInterval = undefined;
+      }
+      if (webGPUCheckCallback) {
+        navigator.serviceWorker?.removeEventListener(
+          "message",
+          webGPUCheckCallback,
+        );
+        webGPUCheckCallback = undefined;
+      }
+    };
 
     isWebllmInitialized.current = false;
     setWebllmAlive(false);
@@ -195,6 +208,7 @@ const useWebLLM = () => {
         log.info(
           "Service Worker activation is timed out. Falling back to use web worker.",
         );
+        cleanupWebGPUProbe();
         createInstance("webWorker");
       }
     }, 10_000);
@@ -228,15 +242,7 @@ const useWebLLM = () => {
               createInstance(isWebGPUAvailable ? "serviceWorker" : "webWorker");
               clearTimeout(timeout);
             }
-            if (webGPUCheckCallback) {
-              navigator.serviceWorker.removeEventListener(
-                "message",
-                webGPUCheckCallback,
-              );
-            }
-            if (sendEventInterval) {
-              clearInterval(sendEventInterval);
-            }
+            cleanupWebGPUProbe();
           }
         };
         navigator.serviceWorker.addEventListener(
@@ -255,15 +261,7 @@ const useWebLLM = () => {
     return () => {
       disposed = true;
       clearTimeout(timeout);
-      if (sendEventInterval) {
-        clearInterval(sendEventInterval);
-      }
-      if (webGPUCheckCallback) {
-        navigator.serviceWorker?.removeEventListener(
-          "message",
-          webGPUCheckCallback,
-        );
-      }
+      cleanupWebGPUProbe();
     };
   }, [config.cacheType]);
 
@@ -292,8 +290,6 @@ const useWebLLM = () => {
 };
 
 const useLoadUrlParam = () => {
-  const config = useAppConfig();
-
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const parseNumberParam = (
@@ -324,17 +320,15 @@ const useLoadUrlParam = () => {
     });
     if (Object.keys(modelConfig).length > 0) {
       log.info("Loaded model config from URL params", modelConfig);
-      config.updateModelConfig(modelConfig);
+      useAppConfig.getState().updateModelConfig(modelConfig);
     }
   }, []);
 };
 
 const useStopStreamingMessages = () => {
-  const chatStore = useChatStore();
-
   // Clean up bad chat messages due to refresh during generating
   useEffect(() => {
-    chatStore.stopStreaming();
+    useChatStore.getState().stopStreaming();
   }, []);
 };
 
@@ -351,10 +345,8 @@ const useLogLevel = (webllm?: WebLLMApi) => {
 };
 
 const useModels = () => {
-  const config = useAppConfig();
-
   useEffect(() => {
-    config.setModels(DEFAULT_MODELS);
+    useAppConfig.getState().setModels(DEFAULT_MODELS);
   }, []);
 };
 

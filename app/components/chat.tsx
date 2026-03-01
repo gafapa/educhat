@@ -153,6 +153,7 @@ export function SessionConfigModel(props: { onClose: () => void }) {
             onClick={() => {
               showPrompt(Locale.Template.Config.Name, session.topic, 1).then(
                 (templateName) => {
+                  if (templateName === null) return;
                   updateTemplate((template) => {
                     template.name = templateName;
                   });
@@ -327,9 +328,9 @@ export function PromptHints(props: {
       };
 
       if (e.key === "ArrowUp") {
-        changeIndex(1);
-      } else if (e.key === "ArrowDown") {
         changeIndex(-1);
+      } else if (e.key === "ArrowDown") {
+        changeIndex(1);
       } else if (e.key === "Enter") {
         const selectedPrompt = props.prompts.at(selectIndex);
         if (selectedPrompt) {
@@ -452,26 +453,24 @@ function ChatAction(props: {
   );
 }
 
-function useScrollToBottom(
-  scrollRef: RefObject<HTMLDivElement>,
-  detach: boolean = false,
-) {
-  // for auto-scroll
-
+function useScrollToBottom(scrollRef: RefObject<HTMLDivElement>) {
   const [autoScroll, setAutoScroll] = useState(true);
-  function scrollDomToBottom() {
+
+  function scrollDomToBottom(behavior: ScrollBehavior = "auto") {
     const dom = scrollRef.current;
     if (dom) {
       requestAnimationFrame(() => {
-        setAutoScroll(true);
-        dom.scrollTo(0, dom.scrollHeight);
+        dom.scrollTo({
+          top: dom.scrollHeight,
+          behavior,
+        });
       });
     }
   }
 
-  // auto scroll
+  // Keep following streamed content while user stays at the bottom.
   useEffect(() => {
-    if (autoScroll && !detach) {
+    if (autoScroll) {
       scrollDomToBottom();
     }
   });
@@ -484,51 +483,85 @@ function useScrollToBottom(
   };
 }
 
-// Basic Modal for showing download progress
-function STTLoadModal(props: { progress: any; onClose: () => void }) {
-  if (!props.progress) return null;
+function clampProgress(progress?: number) {
+  if (typeof progress !== "number" || !Number.isFinite(progress)) return null;
+  const normalized = progress <= 1 ? progress * 100 : progress;
+  return Math.max(0, Math.min(100, normalized));
+}
 
-  const percent = props.progress.progress || 0;
-  const loaded = (props.progress.loaded / 1024 / 1024).toFixed(2);
-  const total = (props.progress.total / 1024 / 1024).toFixed(2);
+function formatMegabytes(bytes?: number) {
+  if (typeof bytes !== "number" || !Number.isFinite(bytes) || bytes < 0) {
+    return null;
+  }
+  return `${(bytes / 1024 / 1024).toFixed(2)} MB`;
+}
+
+function ProgressModal(props: {
+  title: string;
+  label: string;
+  progress?: number | null;
+  detail?: string;
+  onClose: () => void;
+}) {
+  const progressValue = props.progress ?? null;
+  const hasProgress = progressValue !== null;
 
   return (
     <div className="modal-mask">
       <Modal
-        title={Locale.Chat.Actions.DownloadingModel}
+        title={props.title}
         onClose={props.onClose}
         actions={[]}
-        style={{ maxWidth: "400px", margin: "0 auto" }}
+        className={styles["load-modal"]}
+        style={{ maxWidth: "460px", margin: "0 auto" }}
       >
-        <div style={{ padding: "20px", textAlign: "center" }}>
-          <h3>{Locale.Chat.Actions.DownloadingModel}</h3>
-          <div
-            style={{
-              margin: "20px 0",
-              height: "10px",
-              background: "#eee",
-              borderRadius: "5px",
-              overflow: "hidden",
-            }}
-          >
-            <div
-              style={{
-                width: `${percent}%`,
-                height: "100%",
-                background: "var(--primary)",
-                transition: "width 0.2s",
-              }}
-            ></div>
+        <div className={styles["load-modal-content"]}>
+          <div className={styles["load-modal-header"]}>
+            <h3>{props.title}</h3>
+            <div className={styles["load-modal-percent"]}>
+              {hasProgress ? `${Math.round(progressValue)}%` : "--"}
+            </div>
           </div>
-          <p>
-            {props.progress.file} ({Math.round(percent)}%)
-          </p>
-          <p className="text-gray-500 text-sm">
-            {loaded}MB / {total}MB
-          </p>
+
+          <p className={styles["load-modal-label"]}>{props.label}</p>
+
+          <div className={styles["load-modal-track"]}>
+            <div
+              className={styles["load-modal-fill"]}
+              style={{ width: `${hasProgress ? progressValue : 8}%` }}
+            />
+          </div>
+
+          {props.detail && (
+            <p className={styles["load-modal-detail"]}>{props.detail}</p>
+          )}
         </div>
       </Modal>
     </div>
+  );
+}
+
+// Basic Modal for showing download progress
+function STTLoadModal(props: { progress: any; onClose: () => void }) {
+  if (!props.progress) return null;
+
+  const percent =
+    clampProgress(props.progress.progress) ??
+    clampProgress((props.progress.loaded / props.progress.total) * 100);
+  const loaded = formatMegabytes(props.progress.loaded);
+  const total = formatMegabytes(props.progress.total);
+  const detail =
+    loaded && total ? `${loaded} / ${total}` : props.progress.status || "";
+  const label = props.progress.file || Locale.Chat.Actions.DownloadingModel;
+
+  return (
+    <ProgressModal
+      title={Locale.Chat.Actions.DownloadingModel}
+      label={label}
+      progress={percent}
+      detail={detail}
+      onClose={props.onClose}
+    />
   );
 }
 
@@ -536,44 +569,16 @@ function ModelLoadModal(props: {
   progress: InitProgressReport;
   onClose: () => void;
 }) {
-  const rawProgress = props.progress.progress ?? 0;
-  const percent = rawProgress <= 1 ? rawProgress * 100 : rawProgress;
-  const clampedPercent = Math.min(100, Math.max(0, percent));
+  const clampedPercent = clampProgress(props.progress.progress);
   const text = props.progress.text || Locale.Chat.Actions.LoadingModel;
 
   return (
-    <div className="modal-mask">
-      <Modal
-        title={Locale.Chat.Actions.LoadingModel}
-        onClose={props.onClose}
-        actions={[]}
-        style={{ maxWidth: "400px", margin: "0 auto" }}
-      >
-        <div style={{ padding: "20px", textAlign: "center" }}>
-          <h3>{Locale.Chat.Actions.LoadingModel}</h3>
-          <div
-            style={{
-              margin: "20px 0",
-              height: "10px",
-              background: "#eee",
-              borderRadius: "5px",
-              overflow: "hidden",
-            }}
-          >
-            <div
-              style={{
-                width: `${clampedPercent}%`,
-                height: "100%",
-                background: "var(--primary)",
-                transition: "width 0.2s",
-              }}
-            ></div>
-          </div>
-          <p>{text}</p>
-          <p className="text-gray-500 text-sm">{Math.round(clampedPercent)}%</p>
-        </div>
-      </Modal>
-    </div>
+    <ProgressModal
+      title={Locale.Chat.Actions.LoadingModel}
+      label={text}
+      progress={clampedPercent}
+      onClose={props.onClose}
+    />
   );
 }
 
@@ -591,6 +596,7 @@ export function ChatActions(props: {
 }) {
   const config = useAppConfig();
   const chatStore = useChatStore();
+  const { setAttachImages, setUploading } = props;
 
   // switch model
   const currentModel = config.modelConfig.model;
@@ -601,10 +607,10 @@ export function ChatActions(props: {
     const show = isVisionModel(currentModel);
     setShowUploadImage(show);
     if (!show) {
-      props.setAttachImages([]);
-      props.setUploading(false);
+      setAttachImages([]);
+      setUploading(false);
     }
-  }, [chatStore, currentModel, models]);
+  }, [currentModel, setAttachImages, setUploading]);
 
   return (
     <div className={styles["chat-input-actions"]}>
@@ -698,16 +704,7 @@ function _Chat() {
   const [userInput, setUserInput] = useState("");
   const { submitKey, shouldSubmit } = useSubmitHandler();
   const scrollRef = useRef<HTMLDivElement>(null);
-  const isScrolledToBottom = scrollRef?.current
-    ? Math.abs(
-        scrollRef.current.scrollHeight -
-          (scrollRef.current.scrollTop + scrollRef.current.clientHeight),
-      ) <= 1
-    : false;
-  const { setAutoScroll, scrollDomToBottom } = useScrollToBottom(
-    scrollRef,
-    isScrolledToBottom,
-  );
+  const { setAutoScroll, scrollDomToBottom } = useScrollToBottom(scrollRef);
   const [hitBottom, setHitBottom] = useState(true);
   const isMobileScreen = useMobileScreen();
   const navigate = useNavigate();
@@ -836,7 +833,7 @@ function _Chat() {
 
   // Reset session status on initial loading
   useEffect(() => {
-    chatStore.resetGeneratingStatus();
+    useChatStore.getState().resetGeneratingStatus();
   }, []);
 
   // TTS Handler - Auto-speak removed as per user request
@@ -1047,7 +1044,7 @@ function _Chat() {
 
   const renderMessages = useMemo(() => {
     return context.concat(session.messages as RenderMessage[]);
-  }, [context, session.messages, session.messages.length]);
+  }, [context, session.messages]);
 
   const [msgRenderIndex, _setMsgRenderIndex] = useState(
     Math.max(0, renderMessages.length - CHAT_PAGE_SIZE),
@@ -1088,8 +1085,9 @@ function _Chat() {
     setAutoScroll(isHitBottom);
   };
   function scrollToBottom() {
+    setAutoScroll(true);
     setMsgRenderIndex(renderMessages.length - CHAT_PAGE_SIZE);
-    scrollDomToBottom();
+    scrollDomToBottom("smooth");
   }
 
   // clear context index = context length + index in messages
@@ -1192,7 +1190,7 @@ function _Chat() {
         }
       }
     },
-    [attachImages, chatStore],
+    [attachImages, config.modelConfig.model],
   );
 
   async function uploadImage() {
@@ -1206,27 +1204,25 @@ function _Chat() {
         fileInput.accept =
           "image/png, image/jpeg, image/webp, image/heic, image/heif";
         fileInput.multiple = true;
-        fileInput.onchange = (event: any) => {
+        fileInput.onchange = async (event: Event) => {
+          const input = event.currentTarget as HTMLInputElement;
+          const files = Array.from(input.files ?? []);
+
+          if (files.length === 0) {
+            res([]);
+            return;
+          }
+
           setUploading(true);
-          const files = event.target.files;
-          const imagesData: ChatImage[] = [];
-          for (let i = 0; i < files.length; i++) {
-            const file = event.target.files[i];
-            compressImage(file, 256 * 1024)
-              .then((imageData) => {
-                imagesData.push(imageData);
-                if (
-                  imagesData.length === 3 ||
-                  imagesData.length === files.length
-                ) {
-                  setUploading(false);
-                  res(imagesData);
-                }
-              })
-              .catch((e) => {
-                setUploading(false);
-                rej(e);
-              });
+          try {
+            const compressedImages = await Promise.all(
+              files.slice(0, 3).map((file) => compressImage(file, 256 * 1024)),
+            );
+            res(compressedImages);
+          } catch (e) {
+            rej(e);
+          } finally {
+            setUploading(false);
           }
         };
         fileInput.click();
@@ -1407,6 +1403,7 @@ function _Chat() {
                                   getMessageTextContent(message),
                                   10,
                                 );
+                                if (newMessage === null) return;
                                 let newContent: string | MultimodalContent[] =
                                   newMessage;
                                 const images = getMessageImages(message);

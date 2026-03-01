@@ -351,12 +351,23 @@ export function showConfirm(content: any) {
   document.body.appendChild(div);
 
   const root = createRoot(div);
+  let closed = false;
   const closeModal = () => {
+    if (closed) return;
+    closed = true;
     root.unmount();
     div.remove();
   };
 
   return new Promise<boolean>((resolve) => {
+    let settled = false;
+    const settle = (value: boolean) => {
+      if (settled) return;
+      settled = true;
+      resolve(value);
+      closeModal();
+    };
+
     root.render(
       <Modal
         title={Locale.UI.Confirm}
@@ -365,8 +376,7 @@ export function showConfirm(content: any) {
             key="cancel"
             text={Locale.UI.Cancel}
             onClick={() => {
-              resolve(false);
-              closeModal();
+              settle(false);
             }}
             icon={<CancelIcon />}
             tabIndex={0}
@@ -378,8 +388,7 @@ export function showConfirm(content: any) {
             text={Locale.UI.Confirm}
             type="primary"
             onClick={() => {
-              resolve(true);
-              closeModal();
+              settle(true);
             }}
             icon={<ConfirmIcon />}
             tabIndex={0}
@@ -388,7 +397,7 @@ export function showConfirm(content: any) {
             shadow
           ></IconButton>,
         ]}
-        onClose={closeModal}
+        onClose={() => settle(false)}
       >
         {content}
       </Modal>,
@@ -424,13 +433,23 @@ export function showPrompt(content: any, value = "", rows = 3) {
   document.body.appendChild(div);
 
   const root = createRoot(div);
+  let closed = false;
   const closeModal = () => {
+    if (closed) return;
+    closed = true;
     root.unmount();
     div.remove();
   };
 
-  return new Promise<string>((resolve) => {
+  return new Promise<string | null>((resolve) => {
     let userInput = value;
+    let settled = false;
+    const settle = (nextValue: string | null) => {
+      if (settled) return;
+      settled = true;
+      resolve(nextValue);
+      closeModal();
+    };
 
     root.render(
       <Modal
@@ -440,7 +459,7 @@ export function showPrompt(content: any, value = "", rows = 3) {
             key="cancel"
             text={Locale.UI.Cancel}
             onClick={() => {
-              closeModal();
+              settle(null);
             }}
             icon={<CancelIcon />}
             bordered
@@ -452,8 +471,7 @@ export function showPrompt(content: any, value = "", rows = 3) {
             text={Locale.UI.Confirm}
             type="primary"
             onClick={() => {
-              resolve(userInput);
-              closeModal();
+              settle(userInput);
             }}
             icon={<ConfirmIcon />}
             bordered
@@ -461,7 +479,7 @@ export function showPrompt(content: any, value = "", rows = 3) {
             tabIndex={0}
           ></IconButton>,
         ]}
-        onClose={closeModal}
+        onClose={() => settle(null)}
       >
         <PromptInput
           onChange={(val) => (userInput = val)}

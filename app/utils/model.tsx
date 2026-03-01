@@ -1,4 +1,5 @@
 import React from "react";
+import Image from "next/image";
 import MetaIcon from "@/app/icons/meta.svg";
 import MicrosoftIcon from "@/app/icons/microsoft.svg";
 import MistralIcon from "@/app/icons/mistral.svg";
@@ -67,8 +68,28 @@ export function collectModels(
 export interface ModelDetails {
   family: ModelFamily;
   name: string;
-  icon?: React.ComponentType<React.SVGProps<SVGSVGElement>>;
+  icon?: React.ComponentType<{ className?: string }>;
 }
+
+const QwenIcon = ({ className }: { className?: string }) => (
+  <Image
+    src="/qwen.webp"
+    alt="Qwen Logo"
+    width={20}
+    height={20}
+    className={className}
+  />
+);
+
+const SmolLmIcon = ({ className }: { className?: string }) => (
+  <Image
+    src="/smollm.png"
+    alt="SmolLM Logo"
+    width={20}
+    height={20}
+    className={className}
+  />
+);
 
 export const modelDetailsList: ModelDetails[] = [
   { family: ModelFamily.LLAMA, name: "Llama", icon: MetaIcon },
@@ -76,7 +97,7 @@ export const modelDetailsList: ModelDetails[] = [
   {
     family: ModelFamily.QWEN,
     name: "Qwen",
-    icon: (...props) => <img src="./qwen.webp" alt="Qwen Logo" {...props} />,
+    icon: QwenIcon,
   },
   { family: ModelFamily.GEMMA, name: "Gemma", icon: GoogleIcon },
   { family: ModelFamily.PHI, name: "Phi", icon: MicrosoftIcon },
@@ -84,7 +105,7 @@ export const modelDetailsList: ModelDetails[] = [
   {
     family: ModelFamily.SMOL_LM,
     name: "SmolLM",
-    icon: (...props) => <img src="./smollm.png" alt="SmolLM Logo" {...props} />,
+    icon: SmolLmIcon,
   },
   { family: ModelFamily.STABLE_LM, name: "StableLM", icon: StablelmIcon },
   { family: ModelFamily.REDPAJAMA, name: "RedPajama", icon: Shirt },
