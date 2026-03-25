@@ -1,0 +1,83 @@
+# Architecture
+
+## Overview
+
+Edu Chat is a client-heavy Next.js application that renders a chat interface and runs AI workloads directly in the browser. The architecture is intentionally frontend-centric: UI, persistence, routing, and model orchestration are handled in the client, while the build system prepares static assets, workers, and deployment-specific paths.
+
+## Main Layers
+
+### App Shell
+
+- `app/layout.tsx` defines global metadata, CSP, icons, manifest links, and service worker registration
+- `app/page.tsx` mounts the client entry point
+- `app/components/home.tsx` bootstraps routing, theming, model runtime selection, and application hydration
+
+### UI Layer
+
+- `app/components/` contains the interactive UI for chat, settings, templates, markdown, model selection, export flows, and shared controls
+- Styling is based on Sass modules plus global styles in `app/styles/`
+- The application uses `react-router-dom` inside the client shell for in-app navigation
+
+### State Layer
+
+- `app/store/config.ts` manages UI and model configuration
+- `app/store/chat.ts` manages sessions, messages, and runtime chat state
+- `app/store/prompt.ts` manages built-in and user prompts
+- `app/store/template.ts` manages reusable templates
+- Persistence is handled in the browser through the custom store helpers in `app/utils/store.ts`
+
+### AI Runtime Layer
+
+- `app/client/webllm.ts` and related client modules manage model execution and chat requests
+- WebLLM is the primary runtime for local LLM execution
+- Speech-to-text and text-to-speech workers use Transformers.js in `app/worker/stt.worker.ts` and `app/worker/tts.worker.ts`
+- `app/worker/service-worker.ts` enables the service-worker-based WebLLM engine path
+- `app/worker/web-worker.ts` provides a worker fallback path
+
+### Content and Localization
+
+- `app/locales/` stores UI translations
+- `app/templates/` stores built-in template definitions
+- `public/prompts.json` stores prompt catalog data consumed by the prompt store
+
+## Routing Model
+
+The outer application is served by Next.js App Router. Once hydrated, the main UI uses a `HashRouter` so the static export can work on GitHub Pages without server-side route handling.
+
+Important routes are mapped through `Path` constants and rendered in `app/components/home.tsx`.
+
+## Public Asset Strategy
+
+Static assets are served from `public/`. Because GitHub Pages deploys the app under `/educhat`, public URLs must always be generated through the shared base-path-aware helper in `app/config/paths.ts`.
+
+Assets affected by this rule include:
+
+- Icons and PWA metadata
+- `public/prompts.json`
+- `public/fonts/font.css`
+- `public/sw.js`
+
+## Build and Deployment
+
+### Local Commands
+
+- `npm run dev`: standard development mode
+- `npm run build`: standalone build
+- `npm run export`: static export
+
+### GitHub Pages
+
+- Workflow: `.github/workflows/gh_deploy.yml`
+- Build artifact source: `out/`
+- Deployment requires base-path-safe asset references
+
+### Vercel
+
+- Workflow: `.github/workflows/vercel_deploy.yaml`
+- Uses Vercel CLI for production deployment
+
+## Known Constraints
+
+- The initial client bundle is large because AI runtime dependencies and WASM assets are expensive
+- Offline precaching is partial because some generated assets exceed the cache size threshold
+- Next.js remains on the 14.x line, so framework and lint security upgrades still require a dedicated migration plan

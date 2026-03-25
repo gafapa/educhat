@@ -1,13 +1,13 @@
 "use client";
 
 import { useEffect } from "react";
+import { getPublicPath } from "../config/paths";
 
 export function SWRegister() {
   useEffect(() => {
     if ("serviceWorker" in navigator) {
-      // Register with relative path to support subdirectories
       navigator.serviceWorker
-        .register("./sw.js")
+        .register(getPublicPath("/sw.js"))
         .then((registration) => {
           console.log(
             "Service Worker registered with scope:",

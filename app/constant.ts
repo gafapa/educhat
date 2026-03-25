@@ -1546,9 +1546,11 @@ export const DEFAULT_MODELS: ModelRecord[] = DEFAULT_MODEL_BASES.filter(
     if (
       !prebuiltAppConfig.model_list.map((m) => m.model_id).includes(model.name)
     ) {
-      console.warn(
-        `Model ${model.name} not supported by current WebLLM version.`,
-      );
+      if (process.env.NODE_ENV !== "production") {
+        console.warn(
+          `Model ${model.name} not supported by current WebLLM version.`,
+        );
+      }
       return false;
     }
     return true;

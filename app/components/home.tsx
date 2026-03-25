@@ -21,6 +21,7 @@ import LoadingIcon from "../icons/three-dots.svg";
 import Locale from "../locales";
 import { getCSSVar, useMobileScreen } from "../utils";
 import { DEFAULT_MODELS, Path, SlotID } from "../constant";
+import { getPublicPath } from "../config/paths";
 import { ErrorBoundary } from "./error";
 import { getISOLang, getLang } from "../locales";
 import { SideBar } from "./sidebar";
@@ -120,7 +121,7 @@ const useHasHydrated = () => {
 const loadAsyncFonts = () => {
   const linkEl = document.createElement("link");
   linkEl.rel = "stylesheet";
-  linkEl.href = "./fonts/font.css";
+  linkEl.href = getPublicPath("/fonts/font.css");
   document.head.appendChild(linkEl);
 };
 
@@ -164,6 +165,7 @@ const useWebLLM = () => {
   const config = useAppConfig();
   const [webllm, setWebLLM] = useState<WebLLMApi | undefined>(undefined);
   const [isWebllmActive, setWebllmAlive] = useState(false);
+  const [isWebllmInitializing, setWebllmInitializing] = useState(true);
 
   const isWebllmInitialized = useRef(false);
   const logLevelRef = useRef(config.logLevel);
@@ -194,12 +196,21 @@ const useWebLLM = () => {
     isWebllmInitialized.current = false;
     setWebllmAlive(false);
     setWebLLM(undefined);
+    setWebllmInitializing(true);
 
     const createInstance = (type: "serviceWorker" | "webWorker") => {
       if (disposed) return;
-      setWebLLM(new WebLLMApi(type, logLevelRef.current, config.cacheType));
-      setWebllmAlive(true);
-      isWebllmInitialized.current = true;
+      try {
+        setWebLLM(new WebLLMApi(type, logLevelRef.current, config.cacheType));
+        setWebllmAlive(true);
+        isWebllmInitialized.current = true;
+      } catch (error) {
+        console.error("[WebLLM] Failed to initialize engine:", error);
+        setWebLLM(undefined);
+        setWebllmAlive(false);
+      } finally {
+        setWebllmInitializing(false);
+      }
     };
 
     // If service worker registration timeout, fall back to web worker
@@ -215,41 +226,53 @@ const useWebLLM = () => {
 
     if ("serviceWorker" in navigator) {
       log.info("Service Worker API is available and in use.");
-      navigator.serviceWorker.ready.then(() => {
-        if (disposed) return;
-        log.info("Service Worker is activated.");
-        // Check whether WebGPU is available in Service Worker
-        const request = {
-          kind: "checkWebGPUAvilability",
-          uuid: crypto.randomUUID(),
-          content: "",
-        };
+      navigator.serviceWorker.ready
+        .then(() => {
+          if (disposed) return;
+          log.info("Service Worker is activated.");
+          // Check whether WebGPU is available in Service Worker
+          const request = {
+            kind: "checkWebGPUAvilability",
+            uuid: crypto.randomUUID(),
+            content: "",
+          };
 
-        sendEventInterval = setInterval(() => {
-          navigator.serviceWorker.controller?.postMessage(request);
-        }, 200);
+          sendEventInterval = setInterval(() => {
+            navigator.serviceWorker.controller?.postMessage(request);
+          }, 200);
 
-        webGPUCheckCallback = (event: MessageEvent) => {
-          const message = event.data;
-          if (message.kind === "return" && message.uuid === request.uuid) {
-            const isWebGPUAvailable = message.content;
-            log.info(
-              isWebGPUAvailable
-                ? "Service Worker has WebGPU Available."
-                : "Service Worker does not have available WebGPU.",
-            );
-            if (!isWebllmInitialized.current) {
-              createInstance(isWebGPUAvailable ? "serviceWorker" : "webWorker");
-              clearTimeout(timeout);
+          webGPUCheckCallback = (event: MessageEvent) => {
+            const message = event.data;
+            if (message.kind === "return" && message.uuid === request.uuid) {
+              const isWebGPUAvailable = message.content;
+              log.info(
+                isWebGPUAvailable
+                  ? "Service Worker has WebGPU Available."
+                  : "Service Worker does not have available WebGPU.",
+              );
+              if (!isWebllmInitialized.current) {
+                createInstance(
+                  isWebGPUAvailable ? "serviceWorker" : "webWorker",
+                );
+                clearTimeout(timeout);
+              }
+              cleanupWebGPUProbe();
             }
-            cleanupWebGPUProbe();
-          }
-        };
-        navigator.serviceWorker.addEventListener(
-          "message",
-          webGPUCheckCallback,
-        );
-      });
+          };
+          navigator.serviceWorker.addEventListener(
+            "message",
+            webGPUCheckCallback,
+          );
+        })
+        .catch((error) => {
+          log.warn(
+            "Service Worker readiness check failed. Falling back to web worker.",
+            error,
+          );
+          cleanupWebGPUProbe();
+          createInstance("webWorker");
+          clearTimeout(timeout);
+        });
     } else {
       log.info(
         "Service Worker API is unavailable. Falling back to use web worker.",
@@ -276,7 +299,8 @@ const useWebLLM = () => {
         // 10s per heartbeat, dead after 30 seconds of inactivity
         setWebllmAlive(
           !!webllm.webllm.engine &&
-            (webllm.webllm.engine as ServiceWorkerMLCEngine).missedHeatbeat < 3,
+            (webllm.webllm.engine as ServiceWorkerMLCEngine).missedHeartbeat <
+              3,
         );
       }
     }, 10_000);
@@ -286,7 +310,7 @@ const useWebLLM = () => {
     };
   }, [webllm]);
 
-  return { webllm, isWebllmActive };
+  return { webllm, isWebllmActive, isWebllmInitializing };
 };
 
 const useLoadUrlParam = () => {
@@ -352,7 +376,7 @@ const useModels = () => {
 
 export function Home() {
   const hasHydrated = useHasHydrated();
-  const { webllm, isWebllmActive } = useWebLLM();
+  const { webllm, isWebllmActive, isWebllmInitializing } = useWebLLM();
 
   useSwitchTheme();
   useHtmlLang();
@@ -361,11 +385,11 @@ export function Home() {
   useModels();
   useLogLevel(webllm);
 
-  if (!hasHydrated || !webllm || !isWebllmActive) {
+  if (!hasHydrated || isWebllmInitializing) {
     return <Loading />;
   }
 
-  if (!isWebllmActive) {
+  if (!webllm || !isWebllmActive) {
     return <ErrorScreen message={Locale.ServiceWorker.Error} />;
   }
 

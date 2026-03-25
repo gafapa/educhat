@@ -1,6 +1,7 @@
 import Fuse from "fuse.js";
 import { getLang } from "../locales";
 import { StoreKey } from "../constant";
+import { getPublicPath } from "../config/paths";
 import { nanoid } from "nanoid";
 import { createPersistStore } from "../utils/store";
 
@@ -134,7 +135,7 @@ export const usePromptStore = createPersistStore(
     name: StoreKey.Prompt,
 
     onRehydrateStorage(state) {
-      const PROMPT_URL = "./prompts.json";
+      const PROMPT_URL = getPublicPath("/prompts.json");
 
       type PromptList = Array<[string, string]>;
 

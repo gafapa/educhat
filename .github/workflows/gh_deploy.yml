@@ -33,7 +33,7 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: "lts/*"
-          cache: yarn
+          cache: npm
 
       - name: Setup Pages
         uses: actions/configure-pages@v4
@@ -50,10 +50,10 @@ jobs:
             ${{ runner.os }}-nextjs-${{ hashFiles('**/package-lock.json', '**/yarn.lock') }}-
 
       - name: Install dependencies
-        run: yarn install
+        run: npm ci
 
       - name: Build with Next.js
-        run: yarn export
+        run: npm run export
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3

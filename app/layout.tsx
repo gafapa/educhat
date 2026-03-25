@@ -3,11 +3,17 @@ import "./styles/globals.scss";
 import "./styles/markdown.scss";
 import "./styles/highlight.scss";
 import { getClientConfig } from "./config/client";
+import { getPublicPath } from "./config/paths";
 import { SWRegister } from "./components/sw-register";
 import { type Metadata, type Viewport } from "next";
 
 const TITLE = "Edu Chat";
 const DESCRIPTION = "Your Private and Local AI Assistant.";
+const APP_ORIGIN = "https://gallego.top";
+
+function getCanonicalPublicUrl(path: string) {
+  return new URL(getPublicPath(path), APP_ORIGIN).toString();
+}
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://gallego.top/educhat"),
@@ -102,22 +108,29 @@ export default function RootLayout({
         <link
           rel="apple-touch-icon"
           sizes="180x180"
-          href="./apple-touch-icon.png"
+          href={getCanonicalPublicUrl("/apple-touch-icon.png")}
         />
         <link
           rel="icon"
           type="image/png"
           sizes="32x32"
-          href="./favicon-32x32.png"
+          href={getCanonicalPublicUrl("/favicon-32x32.png")}
         />
         <link
           rel="icon"
           type="image/png"
           sizes="16x16"
-          href="./favicon-16x16.png"
+          href={getCanonicalPublicUrl("/favicon-16x16.png")}
         />
-        <link rel="manifest" href="./site.webmanifest" />
-        <link rel="mask-icon" href="./safari-pinned-tab.svg" color="#062578" />
+        <link
+          rel="manifest"
+          href={getCanonicalPublicUrl("/site.webmanifest")}
+        />
+        <link
+          rel="mask-icon"
+          href={getCanonicalPublicUrl("/safari-pinned-tab.svg")}
+          color="#062578"
+        />
         <meta name="msapplication-TileColor" content="#2b5797" />
         <script
           type="application/ld+json"
