@@ -286,4 +286,220 @@ const fr: PartialLocaleType = {
   },
 };
 
+fr.Title = "Edu Chat";
+fr.Subtitle = "Modeles d'IA executant dans le navigateur";
+
+fr.Chat = {
+  ...fr.Chat,
+  SubTitle: (count: number) => `${count} messages avec Edu Chat`,
+  EditMessage: {
+    Title: "Modifier tous les messages",
+    Topic: {
+      Title: "Sujet",
+      SubTitle: "Changer le sujet actuel",
+    },
+  },
+  Actions: {
+    ...fr.Chat?.Actions,
+    Play: "Lire",
+    Share: "Partager",
+    Transcribing: "Transcription en cours...",
+    TranscribingFailed: "La transcription a echoue",
+    MicrophoneDenied: "Acces au microphone refuse",
+    DownloadingModel: "Telechargement du modele Whisper...",
+    Processing: "Traitement...",
+    LoadingModel: "Chargement du modele...",
+    EditConversation: "Modifier la conversation",
+  },
+  Roles: {
+    System: "Prompt systeme",
+    Assistant: "Assistant",
+    User: "Utilisateur",
+  },
+  InputActions: {
+    ...fr.Chat?.InputActions,
+    QuickPrompt: "Prompts rapides",
+    UploadImage: "Importer des images",
+  },
+  Config: {
+    ...fr.Chat?.Config,
+    Confirm: "Confirmer",
+  },
+  IsContext: "Prompt systeme",
+  Metrics: {
+    Prefill: "Prefill",
+    Decode: "Decode",
+    TokensPerSec: "tok/s",
+  },
+};
+
+fr.Export = {
+  ...fr.Export,
+  MessageFromWebLLM: "Message de Edu Chat",
+  Share: "Partager",
+  Format: {
+    Title: "Format d'export",
+    SubTitle: "Markdown ou image PNG",
+  },
+  IncludeContext: {
+    Title: "Inclure le contexte",
+    SubTitle: "Exporter ou non les prompts de contexte du modele",
+  },
+  Steps: {
+    Select: "Selection",
+    Preview: "Apercu",
+  },
+  Image: {
+    Toast: "Capture de l'image...",
+    Modal: "Appui long ou clic droit pour enregistrer l'image",
+  },
+};
+
+fr.Select = {
+  Search: "Rechercher",
+  All: "Tout selectionner",
+  Latest: "Selectionner le dernier",
+  Clear: "Effacer",
+};
+
+fr.Settings = {
+  ...fr.Settings,
+  InjectSystemPrompts: {
+    ...fr.Settings?.InjectSystemPrompts,
+    SubTitle:
+      "Ajouter de force un prompt systeme global au debut de chaque requete",
+  },
+  AutoGenerateTitle: {
+    Title: "Generer le titre automatiquement",
+    SubTitle: "Generer un titre adapte en fonction de la conversation",
+  },
+  Prompt: {
+    ...fr.Settings?.Prompt,
+    Modal: {
+      ...fr.Settings?.Prompt?.Modal,
+      New: "Prompt vide",
+      NewContent: "Contenu vide du prompt",
+    },
+  },
+  THINKING: "Raisonnement",
+  ContextWindowLength: {
+    Title: "Taille de la fenetre de contexte",
+    SubTitle: "Nombre maximal de tokens pour la fenetre de contexte",
+  },
+  CacheType: {
+    Title: "Type de cache",
+    SubTitle: "Utiliser IndexDB ou Cache API pour stocker les poids du modele",
+    Cache: "Cache",
+    IndexDB: "Index DB",
+  },
+  LogLevel: {
+    Title: "Niveau de journalisation",
+    SubTitle: "Ajuster le niveau de detail affiche dans la console",
+  },
+  EnableThinking: {
+    Title: "Activer le raisonnement",
+    SubTitle: "Permettre aux modeles de raisonner etape par etape",
+  },
+  STT: {
+    Title: "Voix vers texte",
+    SubTitle: "Parametres de transcription vocale",
+    Model: "Modele Whisper",
+    Language: "Langue Whisper",
+  },
+};
+
+fr.Download = {
+  Success: "Contenu telecharge dans votre dossier.",
+  Failed: "Le telechargement a echoue.",
+};
+
+fr.Context = {
+  ...fr.Context,
+  Clear: "Contexte efface",
+  Revert: "Retablir",
+};
+
+fr.Template = {
+  ...fr.Template,
+  Page: {
+    ...fr.Template?.Page,
+    SubTitle: "Collection enregistree de prompts",
+  },
+  EditModal: {
+    ...fr.Template?.EditModal,
+    Save: "Enregistrer",
+  },
+};
+
+fr.ModelSelect = {
+  Title: "Selection du modele",
+  SearchPlaceholder: "Rechercher un modele...",
+};
+
+fr.UI = {
+  ...fr.UI,
+  Export: "Exporter",
+  Import: "Importer",
+  Sync: "Synchroniser",
+  Config: "Configurer",
+};
+
+fr.Exporter = {
+  ...fr.Exporter,
+  Description: {
+    Title: "Seuls les messages apres nettoyage du contexte seront affiches",
+  },
+};
+
+fr.URLCommand = {
+  Code: "Un code d'acces a ete detecte dans l'URL. Confirmer l'application?",
+  Settings:
+    "Des parametres ont ete detectes dans l'URL. Confirmer l'application?",
+};
+
+fr.ServiceWorker = {
+  Error:
+    "Le worker WebLLM a perdu la connexion. Fermez tous les onglets Edu Chat puis reouvrez l'application.",
+};
+
+fr.Chat = {
+  ...fr.Chat,
+  Roles: {
+    ...fr.Chat?.Roles,
+    Assistant: "Assistant IA",
+  },
+  InputActions: {
+    ...fr.Chat?.InputActions,
+    Stop: "Arreter",
+    Theme: {
+      ...fr.Chat?.InputActions?.Theme,
+      auto: "Automatique",
+    },
+  },
+  Metrics: {
+    ...fr.Chat?.Metrics,
+    Prefill: "Pre-remplissage",
+    Decode: "Decodage",
+  },
+};
+
+fr.Settings = {
+  ...fr.Settings,
+  Lang: {
+    ...fr.Settings?.Lang,
+    Name: "Langue",
+  },
+  Avatar: "Image de profil",
+  CacheType: {
+    ...fr.Settings?.CacheType,
+    Cache: "Memoire cache",
+    IndexDB: "Base indexee",
+  },
+};
+
+fr.Exporter = {
+  ...fr.Exporter,
+  Messages: "Messages exportes",
+};
+
 export default fr;

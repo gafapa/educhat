@@ -333,4 +333,143 @@ const pt: PartialLocaleType = {
   },
 };
 
+pt.Title = "Edu Chat";
+pt.Subtitle = "Modelos de IA rodando no navegador";
+
+pt.Chat = {
+  ...pt.Chat,
+  Actions: {
+    ...pt.Chat?.Actions,
+    Share: "Compartilhar",
+    Transcribing: "Transcrevendo...",
+    TranscribingFailed: "A transcricao falhou",
+    MicrophoneDenied: "Acesso ao microfone negado",
+    DownloadingModel: "Baixando modelo Whisper...",
+    Processing: "Processando...",
+    LoadingModel: "Carregando modelo...",
+    EditConversation: "Editar conversa",
+  },
+  Roles: {
+    System: "Prompt do sistema",
+    Assistant: "Assistente",
+    User: "Usuario",
+  },
+  InputActions: {
+    ...pt.Chat?.InputActions,
+    QuickPrompt: "Prompts rapidos",
+    UploadImage: "Enviar imagens",
+  },
+  Config: {
+    ...pt.Chat?.Config,
+    Confirm: "Confirmar",
+  },
+  Metrics: {
+    Prefill: "Prefill",
+    Decode: "Decode",
+    TokensPerSec: "tok/s",
+  },
+};
+
+pt.Export = {
+  ...pt.Export,
+  MessageFromWebLLM: "Mensagem do Edu Chat",
+};
+
+pt.Settings = {
+  ...pt.Settings,
+  Prompt: {
+    ...pt.Settings?.Prompt,
+    Modal: {
+      ...pt.Settings?.Prompt?.Modal,
+      New: "Prompt vazio",
+      NewContent: "Conteudo vazio do prompt",
+    },
+  },
+  THINKING: "Raciocinio",
+  ContextWindowLength: {
+    Title: "Tamanho da janela de contexto",
+    SubTitle: "Numero maximo de tokens para a janela de contexto",
+  },
+  CacheType: {
+    Title: "Tipo de cache",
+    SubTitle: "Usar IndexDB ou Cache API para armazenar pesos do modelo",
+    Cache: "Cache",
+    IndexDB: "Index DB",
+  },
+  LogLevel: {
+    Title: "Nivel de log",
+    SubTitle: "Ajustar a quantidade de detalhes mostrados no console",
+  },
+  EnableThinking: {
+    Title: "Ativar raciocinio",
+    SubTitle: "Permitir que modelos de raciocinio pensem passo a passo",
+  },
+  STT: {
+    Title: "Voz para texto",
+    SubTitle: "Configuracoes de fala para texto",
+    Model: "Modelo Whisper",
+    Language: "Idioma Whisper",
+  },
+};
+
+pt.Template = {
+  ...pt.Template,
+  Page: {
+    Title: "Biblioteca de prompts",
+    SubTitle: "Colecao salva de prompts",
+    Search: "Buscar prompts",
+    Create: "Criar",
+  },
+  EditModal: {
+    ...pt.Template?.EditModal,
+    Save: "Salvar",
+  },
+};
+
+pt.ModelSelect = {
+  Title: "Selecao de modelo",
+  SearchPlaceholder: "Buscar modelo...",
+};
+
+pt.ServiceWorker = {
+  Error:
+    "O worker do WebLLM perdeu a conexao. Feche todas as abas do Edu Chat e abra a aplicacao novamente.",
+};
+
+pt.Settings = {
+  ...pt.Settings,
+  Lang: {
+    ...pt.Settings?.Lang,
+    Name: "Idioma",
+  },
+  Avatar: "Imagem de perfil",
+  CacheType: {
+    ...pt.Settings?.CacheType,
+    Cache: "Armazenamento temporario",
+    IndexDB: "Banco indexado",
+  },
+};
+
+pt.Chat = {
+  ...pt.Chat,
+  Metrics: {
+    ...pt.Chat?.Metrics,
+    Prefill: "Preenchimento",
+    Decode: "Decodificacao",
+  },
+};
+
+pt.Plugin = {
+  ...pt.Plugin,
+  Name: "Extensao",
+};
+
+pt.Template = {
+  ...pt.Template,
+  Item: {
+    ...pt.Template?.Item,
+    Chat: "Conversa",
+  },
+};
+
 export default pt;

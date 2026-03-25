@@ -227,4 +227,238 @@ const gl: PartialLocaleType = {
   },
 };
 
+gl.Chat = {
+  ...gl.Chat,
+  EditMessage: {
+    Title: "Editar todas as mensaxes",
+    Topic: {
+      Title: "Tema",
+      SubTitle: "Cambiar o tema actual",
+    },
+  },
+  Actions: {
+    ...gl.Chat?.Actions,
+    Share: "Compartir",
+    Edit: "Editar",
+    EditConversation: "Editar conversacion",
+  },
+  Commands: {
+    new: "Iniciar un chat novo",
+    newt: "Iniciar un chat novo con plantilla",
+    next: "Seguinte chat",
+    prev: "Chat anterior",
+    clear: "Limpar contexto",
+    del: "Eliminar chat",
+  },
+  Roles: {
+    System: "Prompt do sistema",
+    Assistant: "Asistente",
+    User: "Usuario",
+  },
+  InputActions: {
+    Stop: "Deter",
+    ToBottom: "Ir ao ultimo",
+    Theme: {
+      auto: "Automatico",
+      light: "Tema claro",
+      dark: "Tema escuro",
+    },
+    QuickPrompt: "Prompts rapidos",
+    Clear: "Limpar contexto",
+    Settings: "Configuracion",
+    UploadImage: "Subir imaxes",
+  },
+  Config: {
+    ...gl.Chat?.Config,
+    SaveAs: "Gardar prompts",
+    Confirm: "Confirmar",
+  },
+  IsContext: "Prompt do sistema",
+  Metrics: {
+    Prefill: "Precarga",
+    Decode: "Decodificacion",
+    TokensPerSec: "tok/s",
+  },
+};
+
+gl.Export = {
+  ...gl.Export,
+  Share: "Compartir",
+  Format: {
+    Title: "Formato de exportacion",
+    SubTitle: "Markdown ou imaxe PNG",
+  },
+  IncludeContext: {
+    Title: "Incluír contexto",
+    SubTitle: "Exportar ou non os prompts de contexto da plantilla",
+  },
+  Steps: {
+    Select: "Seleccionar",
+    Preview: "Vista previa",
+  },
+  Image: {
+    Toast: "Capturando imaxe...",
+    Modal: "Mantén pulsado ou fai clic dereito para gardar a imaxe",
+  },
+};
+
+gl.Select = {
+  Search: "Buscar",
+  All: "Seleccionar todo",
+  Latest: "Seleccionar ultimo",
+  Clear: "Limpar",
+};
+
+gl.Settings = {
+  ...gl.Settings,
+  Danger: {
+    Reset: {
+      Title: "Restablecer toda a configuracion",
+      SubTitle: "Restablecer todos os axustes aos valores por defecto",
+      Action: "Restablecer",
+      Confirm: "Confirmas que queres restablecer toda a configuracion?",
+    },
+    Clear: {
+      Title: "Borrar todos os datos",
+      SubTitle: "Borrar todas as mensaxes e configuracions",
+      Action: "Borrar",
+      Confirm:
+        "Confirmas que queres borrar todas as mensaxes e configuracions?",
+    },
+  },
+  InputTemplate: {
+    Title: "Plantilla de entrada",
+    SubTitle: "A mensaxe mais recente insertarase nesta plantilla",
+  },
+  AutoGenerateTitle: {
+    Title: "Xerar titulo automaticamente",
+    SubTitle: "Xerar un titulo axeitado segundo o contido da conversa",
+  },
+  Template: {
+    Builtin: {
+      Title: "Ocultar plantillas integradas",
+      SubTitle: "Ocultar as plantillas integradas na lista de plantillas",
+    },
+  },
+  THINKING: "Razoamento",
+  ContextWindowLength: {
+    Title: "Tamano da ventá de contexto",
+    SubTitle: "Numero maximo de tokens para a ventá de contexto",
+  },
+  TopP: {
+    Title: "Top P",
+    SubTitle: "Non cambies este valor ao mesmo tempo ca temperatura",
+  },
+  LogLevel: {
+    Title: "Nivel de rexistro",
+    SubTitle: "Axustar o detalle que se mostra na consola",
+  },
+  EnableThinking: {
+    Title: "Activar razoamento",
+    SubTitle: "Permitir que os modelos razoen paso a paso",
+  },
+};
+
+gl.Download = {
+  Success: "Contido descargado no teu directorio.",
+  Failed: "A descarga fallou.",
+};
+
+gl.Context = {
+  ...gl.Context,
+  Clear: "Contexto borrado",
+  Revert: "Reverter",
+};
+
+gl.Template = {
+  Name: "Prompts",
+  Page: {
+    Title: "Biblioteca de prompts",
+    SubTitle: "Coleccion gardada de prompts",
+    Search: "Buscar prompts",
+    Create: "Crear",
+  },
+  Item: {
+    Info: (count: number) => `${count} prompts`,
+    Chat: "Chat",
+    View: "Ver",
+    Edit: "Editar",
+    Delete: "Eliminar",
+    DeleteConfirm: "Confirmar eliminacion?",
+  },
+  EditModal: {
+    Title: (readonly: boolean) =>
+      `${readonly ? "Ver" : "Editar"} plantilla de prompt ${readonly ? "(so lectura)" : ""}`,
+    Save: "Gardar",
+    Download: "Descargar",
+    Clone: "Clonar",
+  },
+  Config: {
+    Avatar: "Avatar do bot",
+    Name: "Nome do prompt",
+    HideContext: {
+      Title: "Ocultar prompts de contexto",
+      SubTitle: "Non mostrar os prompts de contexto no chat",
+    },
+    Share: {
+      Title: "Compartir esta plantilla",
+      SubTitle: "Xerar unha ligazon a esta plantilla",
+      Action: "Copiar ligazon",
+    },
+  },
+};
+
+gl.ModelSelect = {
+  Title: "Seleccion de modelo",
+  SearchPlaceholder: "Buscar modelo...",
+};
+
+gl.UI = {
+  ...gl.UI,
+  Export: "Exportar",
+  Import: "Importar",
+  Sync: "Sincronizar",
+  Config: "Configurar",
+};
+
+gl.Exporter = {
+  ...gl.Exporter,
+  Description: {
+    Title: "So se mostraran as mensaxes posteriores a limpar o contexto",
+  },
+};
+
+gl.URLCommand = {
+  Code: "Detectouse un codigo de acceso na URL. Confirmas a aplicacion?",
+  Settings: "Detectouse configuracion na URL. Confirmas a aplicacion?",
+};
+
+gl.ServiceWorker = {
+  Error:
+    "O worker de WebLLM perdeu a conexion. Pecha todas as pestanas de Edu Chat e volve abrir a aplicacion.",
+};
+
+gl.Settings = {
+  ...gl.Settings,
+  Lang: {
+    ...gl.Settings?.Lang,
+    Name: "Idioma",
+  },
+  Avatar: "Imaxe de perfil",
+};
+
+gl.Plugin = {
+  ...gl.Plugin,
+  Name: "Complemento",
+};
+
+gl.Template = {
+  ...gl.Template,
+  Name: "Plantillas",
+  Item: {
+    ...gl.Template?.Item,
+    Chat: "Conversa",
+  },
+};
+
 export default gl;

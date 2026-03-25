@@ -222,4 +222,305 @@ const es: PartialLocaleType = {
   },
 };
 
+es.Subtitle = "Modelos de IA ejecutandose en el navegador";
+
+es.Chat = {
+  ...es.Chat,
+  EditMessage: {
+    Title: "Editar todos los mensajes",
+    Topic: {
+      Title: "Tema",
+      SubTitle: "Cambiar el tema actual",
+    },
+  },
+  Actions: {
+    ...es.Chat?.Actions,
+    Share: "Compartir",
+    Edit: "Editar",
+    EditConversation: "Editar conversacion",
+  },
+  Commands: {
+    new: "Iniciar un chat nuevo",
+    newt: "Iniciar un chat nuevo con plantilla",
+    next: "Siguiente chat",
+    prev: "Chat anterior",
+    clear: "Limpiar contexto",
+    del: "Eliminar chat",
+  },
+  Roles: {
+    System: "Prompt del sistema",
+    Assistant: "Asistente",
+    User: "Usuario",
+  },
+  InputActions: {
+    Stop: "Detener",
+    ToBottom: "Ir al ultimo",
+    Theme: {
+      auto: "Automatico",
+      light: "Tema claro",
+      dark: "Tema oscuro",
+    },
+    QuickPrompt: "Prompts rapidos",
+    Clear: "Limpiar contexto",
+    Settings: "Configuracion",
+    UploadImage: "Subir imagenes",
+  },
+  Config: {
+    ...es.Chat?.Config,
+    Reset: "Restablecer por defecto",
+    SaveAs: "Guardar prompts",
+    Confirm: "Confirmar",
+  },
+  IsContext: "Prompt del sistema",
+  Metrics: {
+    Prefill: "Precarga",
+    Decode: "Decodificacion",
+    TokensPerSec: "tok/s",
+  },
+};
+
+es.Export = {
+  ...es.Export,
+  Share: "Compartir",
+  Format: {
+    Title: "Formato de exportacion",
+    SubTitle: "Markdown o imagen PNG",
+  },
+  IncludeContext: {
+    Title: "Incluir contexto",
+    SubTitle: "Exportar o no los prompts de contexto de la plantilla",
+  },
+  Steps: {
+    Select: "Seleccionar",
+    Preview: "Vista previa",
+  },
+  Image: {
+    Toast: "Capturando imagen...",
+    Modal: "Mantener pulsado o hacer clic derecho para guardar la imagen",
+  },
+};
+
+es.Select = {
+  Search: "Buscar",
+  All: "Seleccionar todo",
+  Latest: "Seleccionar ultimo",
+  Clear: "Limpiar",
+};
+
+es.Memory = {
+  ...es.Memory,
+  Send: "Enviar memoria",
+  Reset: "Restablecer sesion",
+};
+
+es.Home = {
+  ...es.Home,
+  DeleteToast: "Chat eliminado",
+};
+
+es.Settings = {
+  ...es.Settings,
+  Danger: {
+    Reset: {
+      Title: "Restablecer toda la configuracion",
+      SubTitle: "Restablecer todos los ajustes a sus valores por defecto",
+      Action: "Restablecer",
+      Confirm: "Confirmar que quieres restablecer toda la configuracion?",
+    },
+    Clear: {
+      Title: "Borrar todos los datos",
+      SubTitle: "Borrar todos los mensajes y configuraciones",
+      Action: "Borrar",
+      Confirm:
+        "Confirmar que quieres borrar todos los mensajes y configuraciones?",
+    },
+  },
+  FontSize: {
+    Title: "Tamano de fuente",
+    SubTitle: "Ajustar el tamano de fuente del contenido del chat",
+  },
+  InputTemplate: {
+    Title: "Plantilla de entrada",
+    SubTitle: "El mensaje mas reciente se insertara en esta plantilla",
+  },
+  AutoGenerateTitle: {
+    Title: "Generar titulo automaticamente",
+    SubTitle:
+      "Generar un titulo adecuado segun el contenido de la conversacion",
+  },
+  Template: {
+    Builtin: {
+      Title: "Ocultar plantillas integradas",
+      SubTitle: "Ocultar las plantillas integradas en la lista de plantillas",
+    },
+  },
+  THINKING: "Razonamiento",
+  ContextWindowLength: {
+    Title: "Tamano de ventana de contexto",
+    SubTitle: "Numero maximo de tokens para la ventana de contexto",
+  },
+  TopP: {
+    Title: "Top P",
+    SubTitle: "No cambies este valor al mismo tiempo que la temperatura",
+  },
+  LogLevel: {
+    Title: "Nivel de registro",
+    SubTitle: "Ajustar el detalle que se muestra en la consola",
+  },
+  EnableThinking: {
+    Title: "Activar razonamiento",
+    SubTitle: "Permitir que los modelos razonen paso a paso",
+  },
+};
+
+es.Download = {
+  Success: "Contenido descargado en tu directorio.",
+  Failed: "La descarga ha fallado.",
+};
+
+es.Context = {
+  ...es.Context,
+  Edit: "Prompts de sistema y memoria",
+  Clear: "Contexto borrado",
+  Revert: "Revertir",
+};
+
+es.Template = {
+  Name: "Prompts",
+  Page: {
+    Title: "Biblioteca de prompts",
+    SubTitle: "Coleccion guardada de prompts",
+    Search: "Buscar prompts",
+    Create: "Crear",
+  },
+  Item: {
+    Info: (count: number) => `${count} prompts`,
+    Chat: "Chat",
+    View: "Ver",
+    Edit: "Editar",
+    Delete: "Eliminar",
+    DeleteConfirm: "Confirmar eliminacion?",
+  },
+  EditModal: {
+    Title: (readonly: boolean) =>
+      `${readonly ? "Ver" : "Editar"} plantilla de prompt ${readonly ? "(solo lectura)" : ""}`,
+    Save: "Guardar",
+    Download: "Descargar",
+    Clone: "Clonar",
+  },
+  Config: {
+    Avatar: "Avatar del bot",
+    Name: "Nombre del prompt",
+    HideContext: {
+      Title: "Ocultar prompts de contexto",
+      SubTitle: "No mostrar los prompts de contexto en el chat",
+    },
+    Share: {
+      Title: "Compartir esta plantilla",
+      SubTitle: "Generar un enlace a esta plantilla",
+      Action: "Copiar enlace",
+    },
+  },
+};
+
+es.NewChat = {
+  ...es.NewChat,
+  Return: "Volver",
+  Skip: "Omitir",
+  More: "Buscar mas",
+  NotShow: "No mostrar de nuevo",
+  ConfirmNoShow:
+    "Confirmar que quieres desactivarlo? Podras activarlo mas tarde en configuracion.",
+};
+
+es.ModelSelect = {
+  Title: "Seleccion de modelo",
+  SearchPlaceholder: "Buscar modelo...",
+};
+
+es.UI = {
+  ...es.UI,
+  Confirm: "Confirmar",
+  Cancel: "Cancelar",
+  Close: "Cerrar",
+  Create: "Crear",
+  Edit: "Editar",
+  Export: "Exportar",
+  Import: "Importar",
+  Sync: "Sincronizar",
+  Config: "Configurar",
+};
+
+es.Exporter = {
+  ...es.Exporter,
+  Description: {
+    Title:
+      "Solo se mostraran los mensajes posteriores a la limpieza del contexto",
+  },
+  Time: "Hora",
+};
+
+es.URLCommand = {
+  Code: "Se ha detectado un codigo de acceso en la URL. Confirmar aplicacion?",
+  Settings: "Se ha detectado configuracion en la URL. Confirmar aplicacion?",
+};
+
+es.ServiceWorker = {
+  Error:
+    "El worker de WebLLM ha perdido la conexion. Cierra todas las pestanas de Edu Chat y vuelve a abrir la aplicacion.",
+};
+
+es.Memory = {
+  ...es.Memory,
+  ResetConfirm:
+    "Restablecer borrara el historial actual de la conversacion y la memoria historica. Confirmas el restablecimiento?",
+};
+
+es.Home = {
+  ...es.Home,
+  Revert: "Restaurar",
+};
+
+es.Settings = {
+  ...es.Settings,
+  Lang: {
+    ...es.Settings?.Lang,
+    Name: "Idioma",
+  },
+  Avatar: "Imagen de perfil",
+  SendPreviewBubble: {
+    ...es.Settings?.SendPreviewBubble,
+    SubTitle: "Previsualizar markdown en el globo",
+  },
+  Prompt: {
+    ...es.Settings?.Prompt,
+    Modal: {
+      ...es.Settings?.Prompt?.Modal,
+      Title: "Lista de prompts",
+      Add: "Anadir",
+      Search: "Buscar prompts",
+    },
+  },
+};
+
+es.Plugin = {
+  ...es.Plugin,
+  Name: "Complemento",
+};
+
+es.Template = {
+  ...es.Template,
+  Name: "Plantillas",
+  Item: {
+    ...es.Template?.Item,
+    Chat: "Conversacion",
+  },
+};
+
+es.NewChat = {
+  ...es.NewChat,
+  Title: "Elegir una plantilla",
+  SubTitle: "Iniciar una conversacion con una plantilla",
+};
+
 export default es;

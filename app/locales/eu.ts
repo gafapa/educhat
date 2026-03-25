@@ -221,4 +221,227 @@ const eu: PartialLocaleType = {
   },
 };
 
+eu.Chat = {
+  ...eu.Chat,
+  EditMessage: {
+    Title: "Mezu guztiak editatu",
+    Topic: {
+      Title: "Gaia",
+      SubTitle: "Uneko gaia aldatu",
+    },
+  },
+  Actions: {
+    ...eu.Chat?.Actions,
+    Share: "Partekatu",
+  },
+  Commands: {
+    new: "Txat berri bat hasi",
+    newt: "Txat berri bat hasi txantiloi batekin",
+    next: "Hurrengo txata",
+    prev: "Aurreko txata",
+    clear: "Testuingurua garbitu",
+    del: "Txata ezabatu",
+  },
+  Roles: {
+    System: "Sistemako prompta",
+    Assistant: "Laguntzailea",
+    User: "Erabiltzailea",
+  },
+  InputActions: {
+    Stop: "Gelditu",
+    ToBottom: "Azken mezura",
+    Theme: {
+      auto: "Automatikoa",
+      light: "Gai argia",
+      dark: "Gai iluna",
+    },
+    QuickPrompt: "Prompt azkarrak",
+    Clear: "Testuingurua garbitu",
+    Settings: "Ezarpenak",
+    UploadImage: "Irudiak igo",
+  },
+  IsContext: "Sistemako prompta",
+  Metrics: {
+    Prefill: "Aurre-karga",
+    Decode: "Deskodetu",
+    TokensPerSec: "tok/s",
+  },
+};
+
+eu.Export = {
+  ...eu.Export,
+  Share: "Partekatu",
+  Format: {
+    Title: "Esportazio formatua",
+    SubTitle: "Markdown edo PNG irudia",
+  },
+  IncludeContext: {
+    Title: "Testuingurua sartu",
+    SubTitle: "Txantiloiaren testuinguru promptak esportatu edo ez",
+  },
+  Steps: {
+    Select: "Hautatu",
+    Preview: "Aurrebista",
+  },
+  Image: {
+    Toast: "Irudia hartzen...",
+    Modal: "Luze sakatu edo eskuineko botoiaz egin klik irudia gordetzeko",
+  },
+};
+
+eu.Select = {
+  Search: "Bilatu",
+  All: "Dena hautatu",
+  Latest: "Azkena hautatu",
+  Clear: "Garbitu",
+};
+
+eu.Settings = {
+  ...eu.Settings,
+  Danger: {
+    Reset: {
+      Title: "Ezarpen guztiak berrezarri",
+      SubTitle: "Ezarpen guztiak lehenetsitako balioetara itzuli",
+      Action: "Berrezarri",
+      Confirm: "Ziur zaude ezarpen guztiak berrezarri nahi dituzula?",
+    },
+    Clear: {
+      Title: "Datu guztiak ezabatu",
+      SubTitle: "Mezu eta ezarpen guztiak ezabatu",
+      Action: "Ezabatu",
+      Confirm: "Ziur zaude mezu eta ezarpen guztiak ezabatu nahi dituzula?",
+    },
+  },
+  InputTemplate: {
+    Title: "Sarrerako txantiloia",
+    SubTitle: "Azken mezua txantiloi honetan sartuko da",
+  },
+  AutoGenerateTitle: {
+    Title: "Izenburua automatikoki sortu",
+    SubTitle: "Elkarrizketaren arabera izenburu egoki bat sortu",
+  },
+  Template: {
+    Builtin: {
+      Title: "Txantiloi integratuak ezkutatu",
+      SubTitle: "Ez erakutsi txantiloi integratuak zerrendan",
+    },
+  },
+  THINKING: "Pentsamendua",
+  ContextWindowLength: {
+    Title: "Testuinguru leihoaren tamaina",
+    SubTitle: "Testuinguru leihoaren gehieneko token kopurua",
+  },
+  TopP: {
+    Title: "Top P",
+    SubTitle: "Ez aldatu balio hau tenperaturarekin batera",
+  },
+  LogLevel: {
+    Title: "Erregistro maila",
+    SubTitle: "Kontsolan erakusten den xehetasun maila doitu",
+  },
+  EnableThinking: {
+    Title: "Pentsamendua aktibatu",
+    SubTitle: "Arrazoiketa ereduei pausoz pauso pentsatzen utzi",
+  },
+};
+
+eu.Download = {
+  Success: "Edukia zure direktorioan deskargatu da.",
+  Failed: "Deskargak huts egin du.",
+};
+
+eu.Context = {
+  ...eu.Context,
+  Clear: "Testuingurua garbitu da",
+  Revert: "Leheneratu",
+};
+
+eu.Template = {
+  Name: "Promptak",
+  Page: {
+    Title: "Prompt liburutegia",
+    SubTitle: "Gordetako prompt bilduma",
+    Search: "Promptak bilatu",
+    Create: "Sortu",
+  },
+  Item: {
+    Info: (count: number) => `${count} prompt`,
+    Chat: "Chat",
+    View: "Ikusi",
+    Edit: "Editatu",
+    Delete: "Ezabatu",
+    DeleteConfirm: "Ezabatzea berretsi?",
+  },
+  EditModal: {
+    Title: (readonly: boolean) =>
+      `${readonly ? "Ikusi" : "Editatu"} prompt txantiloia ${readonly ? "(irakurtzeko bakarrik)" : ""}`,
+    Save: "Gorde",
+    Download: "Deskargatu",
+    Clone: "Klonatu",
+  },
+  Config: {
+    Avatar: "Botaren avatarra",
+    Name: "Promptaren izena",
+    HideContext: {
+      Title: "Testuinguruko promptak ezkutatu",
+      SubTitle: "Ez erakutsi testuinguruko promptak txatean",
+    },
+    Share: {
+      Title: "Txantiloi hau partekatu",
+      SubTitle: "Txantiloi honetarako esteka sortu",
+      Action: "Esteka kopiatu",
+    },
+  },
+};
+
+eu.ModelSelect = {
+  Title: "Eredu hautaketa",
+  SearchPlaceholder: "Bilatu eredua...",
+};
+
+eu.UI = {
+  ...eu.UI,
+  Export: "Esportatu",
+  Import: "Inportatu",
+  Sync: "Sinkronizatu",
+  Config: "Konfiguratu",
+};
+
+eu.Exporter = {
+  ...eu.Exporter,
+  Description: {
+    Title: "Testuingurua garbitu ondorengo mezuak bakarrik erakutsiko dira",
+  },
+};
+
+eu.URLCommand = {
+  Code: "URLan sarbide kode bat detektatu da. Aplikazioa baieztatu?",
+  Settings: "URLan ezarpenak detektatu dira. Aplikazioa baieztatu?",
+};
+
+eu.ServiceWorker = {
+  Error:
+    "WebLLM workerrak konexioa galdu du. Itxi Edu Chat-eko fitxa guztiak eta ireki berriro aplikazioa.",
+};
+
+eu.Settings = {
+  ...eu.Settings,
+  Lang: {
+    ...eu.Settings?.Lang,
+    Name: "Hizkuntza",
+  },
+  CacheType: {
+    ...eu.Settings?.CacheType,
+    Cache: "Cachea",
+  },
+};
+
+eu.Template = {
+  ...eu.Template,
+  Item: {
+    ...eu.Template?.Item,
+    Chat: "Elkarrizketa",
+  },
+};
+
 export default eu;

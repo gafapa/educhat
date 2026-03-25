@@ -221,4 +221,242 @@ const ca: PartialLocaleType = {
   },
 };
 
+ca.Chat = {
+  ...ca.Chat,
+  EditMessage: {
+    Title: "Editar tots els missatges",
+    Topic: {
+      Title: "Tema",
+      SubTitle: "Canviar el tema actual",
+    },
+  },
+  Actions: {
+    ...ca.Chat?.Actions,
+    Share: "Compartir",
+  },
+  Commands: {
+    new: "Iniciar un xat nou",
+    newt: "Iniciar un xat nou amb plantilla",
+    next: "Xat seguent",
+    prev: "Xat anterior",
+    clear: "Netejar context",
+    del: "Eliminar xat",
+  },
+  Roles: {
+    System: "Prompt del sistema",
+    Assistant: "Assistent",
+    User: "Usuari",
+  },
+  InputActions: {
+    Stop: "Aturar",
+    ToBottom: "Anar a l'ultim",
+    Theme: {
+      auto: "Automatic",
+      light: "Tema clar",
+      dark: "Tema fosc",
+    },
+    QuickPrompt: "Prompts rapids",
+    Clear: "Netejar context",
+    Settings: "Configuracio",
+    UploadImage: "Pujar imatges",
+  },
+  IsContext: "Prompt del sistema",
+  Metrics: {
+    Prefill: "Precarga",
+    Decode: "Decodificacio",
+    TokensPerSec: "tok/s",
+  },
+};
+
+ca.Export = {
+  ...ca.Export,
+  Share: "Compartir",
+  Format: {
+    Title: "Format d'exportacio",
+    SubTitle: "Markdown o imatge PNG",
+  },
+  IncludeContext: {
+    Title: "Incloure context",
+    SubTitle: "Exportar o no els prompts de context de la plantilla",
+  },
+  Steps: {
+    Select: "Seleccionar",
+    Preview: "Vista previa",
+  },
+  Image: {
+    Toast: "Capturant imatge...",
+    Modal: "Mantingues premut o fes clic dret per guardar la imatge",
+  },
+};
+
+ca.Select = {
+  Search: "Buscar",
+  All: "Seleccionar-ho tot",
+  Latest: "Seleccionar l'ultim",
+  Clear: "Netejar",
+};
+
+ca.Settings = {
+  ...ca.Settings,
+  Danger: {
+    Reset: {
+      Title: "Restablir tota la configuracio",
+      SubTitle: "Restablir tots els ajustos als valors per defecte",
+      Action: "Restablir",
+      Confirm: "Confirmes que vols restablir tota la configuracio?",
+    },
+    Clear: {
+      Title: "Esborrar totes les dades",
+      SubTitle: "Esborrar tots els missatges i configuracions",
+      Action: "Esborrar",
+      Confirm:
+        "Confirmes que vols esborrar tots els missatges i configuracions?",
+    },
+  },
+  InputTemplate: {
+    Title: "Plantilla d'entrada",
+    SubTitle: "El missatge mes recent s'inserira en aquesta plantilla",
+  },
+  AutoGenerateTitle: {
+    Title: "Generar titol automaticament",
+    SubTitle: "Generar un titol adequat segons el contingut de la conversa",
+  },
+  Template: {
+    Builtin: {
+      Title: "Ocultar plantilles integrades",
+      SubTitle: "Ocultar les plantilles integrades de la llista",
+    },
+  },
+  THINKING: "Raonament",
+  ContextWindowLength: {
+    Title: "Mida de la finestra de context",
+    SubTitle: "Nombre maxim de tokens de la finestra de context",
+  },
+  TopP: {
+    Title: "Top P",
+    SubTitle: "No canviis aquest valor alhora que la temperatura",
+  },
+  LogLevel: {
+    Title: "Nivell de registre",
+    SubTitle: "Ajustar el detall que es mostra a la consola",
+  },
+  EnableThinking: {
+    Title: "Activar raonament",
+    SubTitle: "Permetre que els models raonin pas a pas",
+  },
+};
+
+ca.Download = {
+  Success: "Contingut descarregat al teu directori.",
+  Failed: "La descarrega ha fallat.",
+};
+
+ca.Context = {
+  ...ca.Context,
+  Clear: "Context netejat",
+  Revert: "Revertir",
+};
+
+ca.Template = {
+  Name: "Prompts",
+  Page: {
+    Title: "Biblioteca de prompts",
+    SubTitle: "Colleccio guardada de prompts",
+    Search: "Buscar prompts",
+    Create: "Crear",
+  },
+  Item: {
+    Info: (count: number) => `${count} prompts`,
+    Chat: "Chat",
+    View: "Veure",
+    Edit: "Editar",
+    Delete: "Eliminar",
+    DeleteConfirm: "Confirmar eliminacio?",
+  },
+  EditModal: {
+    Title: (readonly: boolean) =>
+      `${readonly ? "Veure" : "Editar"} plantilla de prompt ${readonly ? "(nomes lectura)" : ""}`,
+    Save: "Guardar",
+    Download: "Descarregar",
+    Clone: "Clonar",
+  },
+  Config: {
+    Avatar: "Avatar del bot",
+    Name: "Nom del prompt",
+    HideContext: {
+      Title: "Ocultar prompts de context",
+      SubTitle: "No mostrar els prompts de context al xat",
+    },
+    Share: {
+      Title: "Compartir aquesta plantilla",
+      SubTitle: "Generar un enllac a aquesta plantilla",
+      Action: "Copiar enllac",
+    },
+  },
+};
+
+ca.ModelSelect = {
+  Title: "Seleccio de model",
+  SearchPlaceholder: "Buscar model...",
+};
+
+ca.UI = {
+  ...ca.UI,
+  Export: "Exportar",
+  Import: "Importar",
+  Sync: "Sincronitzar",
+  Config: "Configurar",
+};
+
+ca.Exporter = {
+  ...ca.Exporter,
+  Description: {
+    Title:
+      "Nomes es mostraran els missatges posteriors a la neteja del context",
+  },
+};
+
+ca.URLCommand = {
+  Code: "S'ha detectat un codi d'acces a l'URL. Confirmes l'aplicacio?",
+  Settings: "S'ha detectat configuracio a l'URL. Confirmes l'aplicacio?",
+};
+
+ca.ServiceWorker = {
+  Error:
+    "El worker de WebLLM ha perdut la connexio. Tanca totes les pestanyes d'Edu Chat i torna a obrir l'aplicacio.",
+};
+
+ca.Settings = {
+  ...ca.Settings,
+  Lang: {
+    ...ca.Settings?.Lang,
+    Name: "Idioma",
+  },
+  Avatar: "Imatge de perfil",
+  Model: "Model d'IA",
+  CacheType: {
+    ...ca.Settings?.CacheType,
+    Cache: "Memoria cau",
+  },
+};
+
+ca.Template = {
+  ...ca.Template,
+  Name: "Plantilles",
+  Item: {
+    ...ca.Template?.Item,
+    Chat: "Conversa",
+  },
+};
+
+ca.Exporter = {
+  ...ca.Exporter,
+  Model: "Model exportat",
+};
+
+ca.Plugin = {
+  ...ca.Plugin,
+  Name: "Extensio",
+};
+
 export default ca;
