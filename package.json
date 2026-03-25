@@ -11,7 +11,7 @@
     "export": "cross-env BUILD_MODE=export next build",
     "export:dev": "cross-env BUILD_MODE=export next dev",
     "prompts": "node ./scripts/fetch-prompts.mjs",
-    "prepare": "husky install",
+    "prepare": "husky",
     "proxy-dev": "sh ./scripts/init-proxy.sh && proxychains -f ./scripts/proxychains.conf npm run dev"
   },
   "dependencies": {
@@ -57,15 +57,17 @@
     "eslint-config-prettier": "^9.1.0",
     "eslint-plugin-prettier": "^5.5.5",
     "husky": "^9.1.7",
-    "lint-staged": "^13.2.2",
+    "lint-staged": "^16.4.0",
     "prettier": "^3.8.1",
     "serwist": "^9.5.7",
     "typescript": "^5.4.5",
     "webpack": "^5.105.4",
     "zustymiddlewarets": "^1.4.2"
   },
-  "resolutions": {
-    "lint-staged/yaml": "^2.2.2"
+  "overrides": {
+    "@typescript-eslint/typescript-estree": {
+      "minimatch": "^9.0.9"
+    }
   },
   "packageManager": "npm@10.8.2",
   "browser": {
