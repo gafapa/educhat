@@ -38,47 +38,103 @@ export class WebLLMApi implements LLMApi {
   private llmConfig?: LLMConfig;
   private initialized = false;
   webllm: WebLLMHandler;
+  private readonly logLevel: LogLevel;
+  private readonly cacheType: CacheType;
 
   constructor(
     type: "serviceWorker" | "webWorker",
     logLevel: LogLevel = "WARN",
     cacheType: CacheType = CacheType.Cache,
   ) {
-    const engineConfig = {
+    this.logLevel = logLevel;
+    this.cacheType = cacheType;
+    this.webllm = this.createEngine(type);
+  }
+
+  private getEngineConfig() {
+    return {
       appConfig: {
         ...prebuiltAppConfig,
-        useIndexedDBCache: cacheType === CacheType.IndexDB,
+        useIndexedDBCache: this.cacheType === CacheType.IndexDB,
       },
-      logLevel,
+      logLevel: this.logLevel,
     };
+  }
+
+  private createEngine(type: "serviceWorker" | "webWorker"): WebLLMHandler {
+    const engineConfig = this.getEngineConfig();
 
     if (type === "serviceWorker") {
       log.info("Create ServiceWorkerMLCEngine");
-      this.webllm = {
+      return {
         type: "serviceWorker",
         engine: new ServiceWorkerMLCEngine(engineConfig, KEEP_ALIVE_INTERVAL),
       };
-    } else {
-      log.info("Create WebWorkerMLCEngine");
-      if (typeof Worker === "undefined") {
-        log.warn("Web Worker is not available in this environment.");
-        // This Case only happens if the class is instantiated on the server side
-        // We initialize as webWorker but without an engine to avoid crash
-        this.webllm = {
-          type: "webWorker",
-          engine: null as any,
-        };
-        return;
-      }
-      this.webllm = {
+    }
+
+    log.info("Create WebWorkerMLCEngine");
+    if (typeof Worker === "undefined") {
+      log.warn("Web Worker is not available in this environment.");
+      // This case only happens if the class is instantiated on the server side.
+      return {
         type: "webWorker",
-        engine: new WebWorkerMLCEngine(
-          new Worker(new URL("../worker/web-worker.ts", import.meta.url), {
-            type: "module",
-          }),
-          engineConfig,
-        ),
+        engine: null as any,
       };
+    }
+
+    return {
+      type: "webWorker",
+      engine: new WebWorkerMLCEngine(
+        new Worker(new URL("../worker/web-worker.ts", import.meta.url), {
+          type: "module",
+        }),
+        engineConfig,
+      ),
+    };
+  }
+
+  private shouldFallbackToWebWorker(error: unknown) {
+    if (this.webllm.type !== "serviceWorker") {
+      return false;
+    }
+
+    const errorMessage =
+      error instanceof Error ? error.message : String(error ?? "");
+    const normalized = errorMessage.toLowerCase();
+
+    return (
+      normalized.includes("linkerror") ||
+      normalized.includes("webassembly.instantiate") ||
+      normalized.includes("tvmffiwasmsafecall")
+    );
+  }
+
+  private async fallbackToWebWorker(error: unknown) {
+    if (this.webllm.type !== "serviceWorker") {
+      return false;
+    }
+
+    log.warn(
+      "Service worker model initialization failed. Falling back to web worker.",
+      error,
+    );
+
+    try {
+      await this.webllm.engine.unload();
+    } catch (unloadError) {
+      log.warn(
+        "Failed to unload service worker engine before fallback",
+        unloadError,
+      );
+    }
+
+    try {
+      this.webllm = this.createEngine("webWorker");
+      this.initialized = false;
+      return true;
+    } catch (fallbackError) {
+      log.error("Web worker fallback initialization failed", fallbackError);
+      return false;
     }
   }
 
@@ -130,6 +186,15 @@ export class WebLLMApi implements LLMApi {
         await this.initModel(options.onInitProgress);
         options.onInitDone?.();
       } catch (err: any) {
+        if (this.shouldFallbackToWebWorker(err)) {
+          const didFallback = await this.fallbackToWebWorker(err);
+          if (didFallback) {
+            await this.initModel(options.onInitProgress);
+            options.onInitDone?.();
+            return;
+          }
+        }
+
         let errorMessage = err.message || err.toString() || "";
         if (errorMessage === "[object Object]") {
           errorMessage = JSON.stringify(err);

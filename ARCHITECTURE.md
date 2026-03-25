@@ -31,6 +31,7 @@ Edu Chat is a client-heavy Next.js application that renders a chat interface and
 
 - `app/client/webllm.ts` and related client modules manage model execution and chat requests
 - WebLLM is the primary runtime for local LLM execution
+- The client prefers the service-worker-backed WebLLM engine, but automatically falls back to the web worker engine if model initialization fails with a service-worker-specific WASM linking error
 - Speech-to-text and text-to-speech workers use Transformers.js in `app/worker/stt.worker.ts` and `app/worker/tts.worker.ts`
 - `app/worker/service-worker.ts` enables the service-worker-based WebLLM engine path
 - `app/worker/web-worker.ts` provides a worker fallback path

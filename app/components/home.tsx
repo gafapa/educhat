@@ -288,17 +288,20 @@ const useWebLLM = () => {
 
   // Heartbeat monitoring for service worker engine - must be in useEffect with cleanup
   useEffect(() => {
-    if (webllm?.webllm.type !== "serviceWorker") {
+    if (!webllm) {
       return;
     }
 
     const heartbeatInterval = setInterval(() => {
-      if (webllm) {
-        // 10s per heartbeat, dead after 30 seconds of inactivity
+      if (webllm.webllm.type !== "serviceWorker") {
+        setWebllmAlive(true);
+        return;
+      }
+
+      // 10s per heartbeat, dead after 30 seconds of inactivity
+      if (webllm.webllm.engine) {
         setWebllmAlive(
-          !!webllm.webllm.engine &&
-            (webllm.webllm.engine as ServiceWorkerMLCEngine).missedHeartbeat <
-              3,
+          (webllm.webllm.engine as ServiceWorkerMLCEngine).missedHeartbeat < 3,
         );
       }
     }, 10_000);
