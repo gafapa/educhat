@@ -38,6 +38,7 @@ Edu Chat is a client-heavy Next.js application that renders a chat interface and
 ### Content and Localization
 
 - `app/locales/` stores UI translations
+- The primary supported UI languages are English, Spanish, Galician, French, German, Portuguese, Catalan, and Basque
 - `app/templates/` stores built-in template definitions
 - `public/prompts.json` stores prompt catalog data consumed by the prompt store
 

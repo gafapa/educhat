@@ -1,6 +1,11 @@
+import ca from "./ca";
+import de from "./de";
 import en from "./en";
 import es from "./es";
+import eu from "./eu";
+import fr from "./fr";
 import gl from "./gl";
+import pt from "./pt";
 
 import { merge } from "../utils/merge";
 
@@ -11,6 +16,11 @@ const ALL_LANGS = {
   en,
   es,
   gl,
+  fr,
+  de,
+  pt,
+  ca,
+  eu,
 };
 
 export type Lang = keyof typeof ALL_LANGS;
@@ -19,8 +29,13 @@ export const AllLangs = Object.keys(ALL_LANGS) as Lang[];
 
 export const ALL_LANG_OPTIONS: Record<Lang, string> = {
   en: "English",
-  es: "Español",
+  es: "Espanol",
   gl: "Galego",
+  fr: "Francais",
+  de: "Deutsch",
+  pt: "Portugues",
+  ca: "Catala",
+  eu: "Euskara",
 };
 
 const LANG_KEY = "lang";
@@ -29,7 +44,6 @@ const DEFAULT_LANG = "es";
 const fallbackLang = en;
 const targetLang = ALL_LANGS[getLang()] as LocaleType;
 
-// if target lang missing some fields, it will use fallback lang string
 merge(fallbackLang, targetLang);
 
 export default fallbackLang as LocaleType;

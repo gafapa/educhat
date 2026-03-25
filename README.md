@@ -7,7 +7,7 @@ Edu Chat is a browser-first AI chat application focused on privacy, local infere
 - Local inference in the browser through WebGPU and WebLLM
 - Privacy-first chat flows with no mandatory remote API dependency
 - Progressive Web App support with a Serwist service worker
-- Multilingual interface, including Galician support
+- Multilingual interface with English, Spanish, Galician, French, German, Portuguese, Catalan, and Basque
 - Static export support for GitHub Pages under the `/educhat` base path
 
 ## Stack
