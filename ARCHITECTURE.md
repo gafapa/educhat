@@ -80,5 +80,4 @@ Assets affected by this rule include:
 ## Known Constraints
 
 - The initial client bundle is large because AI runtime dependencies and WASM assets are expensive
-- Offline precaching is partial because some generated assets exceed the cache size threshold
-- Sass still uses deprecated `@import` rules in several stylesheets and should be migrated to `@use` before Dart Sass 3.x
+- Offline precaching is intentionally partial because very large runtime assets are excluded from the precache manifest

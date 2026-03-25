@@ -5,6 +5,7 @@ const isProd = process.env.NODE_ENV === "production";
 const useBasePath = isProd || mode === "export";
 const basePath = useBasePath ? "/educhat" : "";
 const assetPrefix = useBasePath ? "/educhat/" : "";
+const SERWIST_MAX_PRECACHE_SIZE = 2 * 1024 * 1024;
 console.log("[Next] build mode", mode);
 
 const disableChunk = !!process.env.DISABLE_CHUNK || mode === "export";
@@ -102,4 +103,10 @@ export default withSerwistInit({
   swSrc: "app/worker/service-worker.ts",
   swDest: "public/sw.js",
   register: false,
+  maximumFileSizeToCacheInBytes: SERWIST_MAX_PRECACHE_SIZE,
+  exclude: [
+    ({ asset }) =>
+      asset.name.endsWith(".wasm") ||
+      asset.source.size() > SERWIST_MAX_PRECACHE_SIZE,
+  ],
 })(nextConfig);
