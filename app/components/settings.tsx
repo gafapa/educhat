@@ -1,4 +1,4 @@
-import { useState, useEffect, useContext } from "react";
+import { useState, useEffect, useContext, useMemo } from "react";
 import log from "loglevel";
 
 import styles from "./settings.module.scss";
@@ -98,19 +98,15 @@ function UserPromptModal(props: { onClose?: () => void }) {
   const builtinPrompts = SearchService.builtinPrompts;
   const allPrompts = userPrompts.concat(builtinPrompts);
   const [searchInput, setSearchInput] = useState("");
-  const [searchPrompts, setSearchPrompts] = useState<Prompt[]>([]);
+  const searchPrompts = useMemo<Prompt[]>(() => {
+    if (searchInput.length === 0) {
+      return [];
+    }
+    return SearchService.search(searchInput);
+  }, [searchInput]);
   const prompts = searchInput.length > 0 ? searchPrompts : allPrompts;
 
   const [editingPromptId, setEditingPromptId] = useState<string>();
-
-  useEffect(() => {
-    if (searchInput.length > 0) {
-      const searchResult = SearchService.search(searchInput);
-      setSearchPrompts(searchResult);
-    } else {
-      setSearchPrompts([]);
-    }
-  }, [searchInput]);
 
   return (
     <div className="screen-model-container">

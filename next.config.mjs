@@ -1,6 +1,4 @@
 import withSerwistInit from "@serwist/next";
-import { createRequire } from "module";
-const require = createRequire(import.meta.url);
 
 const mode = process.env.BUILD_MODE;
 const isProd = process.env.NODE_ENV === "production";
@@ -29,23 +27,14 @@ const cspHeader = `
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  swcMinify: false,
   webpack(config, { isServer }) {
     config.module.rules.push({
       test: /\.svg$/,
       use: ["@svgr/webpack"],
     });
-
-
-
-
-
     config.resolve.fallback = {
       child_process: false,
     };
-
-
-
     if (!isServer) {
       config.resolve.fallback = {
         ...config.resolve.fallback,

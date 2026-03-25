@@ -320,6 +320,7 @@ export function ImagePreviewer(props: {
   const config = useAppConfig();
 
   const previewRef = useRef<HTMLDivElement>(null);
+  const exportTime = props.messages.at(-1)?.date;
 
   const copy = () => {
     showToast(Locale.Export.Image.Toast);
@@ -410,9 +411,7 @@ export function ImagePreviewer(props: {
             </div>
             <div className={styles["chat-info-item"]}>
               {Locale.Exporter.Time}:{" "}
-              {new Date(
-                props.messages.at(-1)?.date ?? Date.now(),
-              ).toLocaleString()}
+              {exportTime ? new Date(exportTime).toLocaleString() : "-"}
             </div>
           </div>
         </div>

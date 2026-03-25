@@ -12,7 +12,7 @@ Edu Chat is a browser-first AI chat application focused on privacy, local infere
 
 ## Stack
 
-- Next.js 14 App Router
+- Next.js 16 App Router
 - React 18
 - TypeScript
 - Zustand for client-side state
@@ -38,9 +38,9 @@ npm run dev
 The main scripts are:
 
 - `npm run dev`: Start the development server
-- `npm run lint`: Run ESLint
-- `npm run build`: Build the standalone Next.js output
-- `npm run export`: Build the static export used by GitHub Pages
+- `npm run lint`: Run ESLint through `eslint.config.mjs`
+- `npm run build`: Build the standalone Next.js output with Webpack
+- `npm run export`: Build the static export used by GitHub Pages with Webpack
 - `npm run prompts`: Refresh the prompt catalog in `public/prompts.json`
 
 ## Deployment Modes
@@ -56,8 +56,9 @@ Static deployments use the `/educhat` base path. Public assets and service worke
 
 - The repository uses `npm` and `package-lock.json` as the source of truth
 - GitHub Pages CI is expected to build through `npm ci` and `npm run export`
+- The lint pipeline uses ESLint CLI with flat config in `eslint.config.mjs`
 - The client is heavy because model runtime assets and WebAssembly bundles are large
-- Some ecosystem upgrades, such as Next.js 16 and React 19, are still pending and should be handled as dedicated migrations
+- Next.js security advisories are cleared on the current dependency tree after the migration to 16.x
 
 ## License
 

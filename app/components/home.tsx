@@ -6,7 +6,7 @@ import styles from "./home.module.scss";
 
 import log from "loglevel";
 import dynamic from "next/dynamic";
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useSyncExternalStore } from "react";
 import {
   HashRouter as Router,
   Routes,
@@ -109,13 +109,11 @@ function useHtmlLang() {
 }
 
 const useHasHydrated = () => {
-  const [hasHydrated, setHasHydrated] = useState<boolean>(false);
-
-  useEffect(() => {
-    setHasHydrated(true);
-  }, []);
-
-  return hasHydrated;
+  return useSyncExternalStore(
+    () => () => undefined,
+    () => true,
+    () => false,
+  );
 };
 
 const loadAsyncFonts = () => {

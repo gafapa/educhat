@@ -1,4 +1,10 @@
-import React, { useState, useEffect, useCallback, useRef } from "react";
+import React, {
+  useState,
+  useEffect,
+  useCallback,
+  useMemo,
+  useRef,
+} from "react";
 import { Cpu, Search } from "lucide-react";
 import ModelRow from "./model-row";
 import { modelDetailsList } from "../utils/model";
@@ -64,9 +70,6 @@ const ModelSelect: React.FC<ModelSearchProps> = ({
 }) => {
   const config = useAppConfig();
   const [searchTerm, setSearchTerm] = useState("");
-  const [filteredModels, setFilteredModels] = useState<[string, string[]][]>(
-    [],
-  );
   const [selectedFamilies, setSelectedFamilies] = useState<string[]>([]);
   const [expandedModels, setExpandedModels] = useState<Set<string>>(new Set());
 
@@ -156,7 +159,7 @@ const ModelSelect: React.FC<ModelSearchProps> = ({
     });
   };
 
-  useEffect(() => {
+  const filteredModels = useMemo(() => {
     const sortedModels = sortAndGroupModels(availableModels);
 
     let filtered = sortedModels;
@@ -177,7 +180,7 @@ const ModelSelect: React.FC<ModelSearchProps> = ({
       });
     }
 
-    setFilteredModels(filtered);
+    return filtered;
   }, [
     searchTerm,
     availableModels,

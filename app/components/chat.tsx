@@ -601,16 +601,14 @@ export function ChatActions(props: {
   // switch model
   const currentModel = config.modelConfig.model;
   const models = config.models;
-  const [showUploadImage, setShowUploadImage] = useState(false);
+  const showUploadImage = isVisionModel(currentModel);
 
   useEffect(() => {
-    const show = isVisionModel(currentModel);
-    setShowUploadImage(show);
-    if (!show) {
+    if (!showUploadImage) {
       setAttachImages([]);
       setUploading(false);
     }
-  }, [currentModel, setAttachImages, setUploading]);
+  }, [showUploadImage, setAttachImages, setUploading]);
 
   return (
     <div className={styles["chat-input-actions"]}>
@@ -688,7 +686,7 @@ export function DeleteImageButton(props: { deleteImage: () => void }) {
   );
 }
 
-function _Chat() {
+function ChatInner() {
   type RenderMessage = ChatMessage & { preview?: boolean };
 
   const chatStore = useChatStore();
@@ -1705,5 +1703,5 @@ function _Chat() {
 export function Chat() {
   const chatStore = useChatStore();
   const sessionIndex = chatStore.currentSessionIndex;
-  return <_Chat key={sessionIndex}></_Chat>;
+  return <ChatInner key={sessionIndex}></ChatInner>;
 }

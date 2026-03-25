@@ -61,9 +61,10 @@ Assets affected by this rule include:
 
 ### Local Commands
 
-- `npm run dev`: standard development mode
-- `npm run build`: standalone build
-- `npm run export`: static export
+- `npm run dev`: development mode with explicit Webpack build pipeline
+- `npm run build`: standalone build with explicit Webpack pipeline
+- `npm run export`: static export with explicit Webpack pipeline
+- `npm run lint`: ESLint CLI using the flat config defined in `eslint.config.mjs`
 
 ### GitHub Pages
 
@@ -80,4 +81,4 @@ Assets affected by this rule include:
 
 - The initial client bundle is large because AI runtime dependencies and WASM assets are expensive
 - Offline precaching is partial because some generated assets exceed the cache size threshold
-- Next.js remains on the 14.x line, so framework and lint security upgrades still require a dedicated migration plan
+- Sass still uses deprecated `@import` rules in several stylesheets and should be migrated to `@use` before Dart Sass 3.x

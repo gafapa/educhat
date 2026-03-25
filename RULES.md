@@ -29,6 +29,7 @@
 - Run `npm run lint` before finalizing changes
 - Run `npm run build` for runtime-impacting changes
 - Run `npm run export` for any change that touches routing, public assets, or deployment behavior
+- Keep `eslint.config.mjs` aligned with the lint script when upgrading Next.js or ESLint
 
 ## Runtime Rules
 
@@ -40,4 +41,5 @@
 
 - Prefer focused, descriptive commits
 - Keep GitHub Actions aligned with the active package manager and build commands
+- Keep the Next.js scripts on the same bundler path used by the repository configuration when custom Webpack behavior is required
 - Do not merge dependency upgrades and framework migrations blindly; separate patch-level maintenance from major-version migrations
