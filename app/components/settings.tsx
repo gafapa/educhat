@@ -27,12 +27,7 @@ import {
   CacheType,
 } from "../store";
 
-import Locale, {
-  AllLangs,
-  ALL_LANG_OPTIONS,
-  changeLang,
-  getLang,
-} from "../locales";
+import Locale from "../locales";
 import { copyToClipboard } from "../utils";
 import { LOG_LEVELS, Path, SlotID } from "../constant";
 import { Prompt, SearchService, usePromptStore } from "../store/prompt";
@@ -411,21 +406,6 @@ export function Settings() {
               {Object.values(Theme).map((v) => (
                 <option value={v} key={v}>
                   {v}
-                </option>
-              ))}
-            </Select>
-          </ListItem>
-
-          <ListItem title={Locale.Settings.Lang.Name}>
-            <Select
-              value={getLang()}
-              onChange={(e) => {
-                changeLang(e.target.value as any);
-              }}
-            >
-              {AllLangs.map((lang) => (
-                <option value={lang} key={lang}>
-                  {ALL_LANG_OPTIONS[lang]}
                 </option>
               ))}
             </Select>

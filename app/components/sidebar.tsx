@@ -15,6 +15,7 @@ import AutoIcon from "../icons/auto.svg";
 import LogoIcon from "../icons/logo.svg";
 
 import Locale from "../locales";
+import { ALL_LANG_OPTIONS, AllLangs, changeLang, getLang } from "../locales";
 
 import { Theme, useAppConfig, useChatStore } from "../store";
 
@@ -170,6 +171,30 @@ export function SideBar(props: { className?: string }) {
         <div className={styles["sidebar-logo"] + " no-dark"}>
           <LogoIcon />
         </div>
+      </div>
+
+      <div className={styles["sidebar-language"]}>
+        <label
+          className={styles["sidebar-language-label"]}
+          htmlFor="sidebar-language-select"
+        >
+          {Locale.Settings.Lang.Name}
+        </label>
+        <select
+          id="sidebar-language-select"
+          className={styles["sidebar-language-select"]}
+          value={getLang()}
+          aria-label={Locale.Settings.Lang.Name}
+          onChange={(e) =>
+            changeLang(e.currentTarget.value as (typeof AllLangs)[number])
+          }
+        >
+          {AllLangs.map((lang) => (
+            <option value={lang} key={lang}>
+              {ALL_LANG_OPTIONS[lang]}
+            </option>
+          ))}
+        </select>
       </div>
 
       <div className={styles["sidebar-header-bar"]}>

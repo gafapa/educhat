@@ -15,6 +15,7 @@ Edu Chat is a client-heavy Next.js application that renders a chat interface and
 ### UI Layer
 
 - `app/components/` contains the interactive UI for chat, settings, templates, markdown, model selection, export flows, and shared controls
+- `app/components/sidebar.tsx` now hosts the primary UI language selector so language switching is available from the main navigation shell
 - Styling is based on Sass modules plus global styles in `app/styles/`
 - The application uses `react-router-dom` inside the client shell for in-app navigation
 
