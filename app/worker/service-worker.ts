@@ -70,27 +70,10 @@ declare global {
   }
 }
 
-// Transform manifest to use relative paths (strip leading slash and add ./)
-// We must reference the injection point only once.
-const originalManifest = self.__SW_MANIFEST;
-const manifest = originalManifest?.map((entry) => {
-  let url = "";
-  if (typeof entry === "string") {
-    url = entry;
-  } else if (entry && entry.url) {
-    url = entry.url;
-  }
-
-  if (url.startsWith("/")) {
-    const newUrl = "." + url;
-    if (typeof entry === "string") return newUrl;
-    return { ...entry, url: newUrl };
-  }
-  return entry;
-});
-
-console.log("SW: Original Manifest", originalManifest);
-console.log("SW: Transformed Manifest", manifest);
+const manifest = self.__SW_MANIFEST;
+const serviceWorkerScopePath = new URL(
+  self.registration.scope,
+).pathname.replace(/\/$/, "");
 
 const serwist = new Serwist({
   precacheEntries: manifest,
@@ -101,7 +84,7 @@ const serwist = new Serwist({
     ...defaultCache,
     {
       matcher: ({ sameOrigin, url: { pathname } }) =>
-        sameOrigin && pathname === "/ping.txt",
+        sameOrigin && pathname === `${serviceWorkerScopePath}/ping.txt`,
       handler: new CacheFirst({
         cacheName: "WebLLMChatServiceWorkerKeepAlive",
         plugins: [
