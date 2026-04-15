@@ -59,6 +59,7 @@ Static deployments use the `/educhat` base path. Public assets and service worke
 - The lint pipeline uses ESLint CLI with flat config in `eslint.config.mjs`
 - The client is heavy because model runtime assets and WebAssembly bundles are large
 - Very large runtime bundles are intentionally excluded from the precache manifest to avoid oversized offline downloads
+- Workspace-only tooling folders are excluded from output tracing so local agent junctions do not break production builds
 - Next.js security advisories are cleared on the current dependency tree after the migration to 16.x
 
 ## License

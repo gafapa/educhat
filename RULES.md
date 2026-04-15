@@ -43,3 +43,4 @@
 - Keep GitHub Actions aligned with the active package manager and build commands
 - Keep the Next.js scripts on the same bundler path used by the repository configuration when custom Webpack behavior is required
 - Do not merge dependency upgrades and framework migrations blindly; separate patch-level maintenance from major-version migrations
+- Keep local agent or editor tooling folders out of version control and out of Next.js output tracing so workspace-only junctions cannot break builds

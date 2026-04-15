@@ -98,14 +98,15 @@ export function useSwitchTheme() {
 }
 
 function useHtmlLang() {
+  const currentLang = getISOLang();
+
   useEffect(() => {
-    const lang = getISOLang();
     const htmlLang = document.documentElement.lang;
 
-    if (lang !== htmlLang) {
-      document.documentElement.lang = lang;
+    if (currentLang !== htmlLang) {
+      document.documentElement.lang = currentLang;
     }
-  }, []);
+  }, [currentLang]);
 }
 
 const useHasHydrated = () => {
@@ -225,7 +226,7 @@ const useWebLLM = () => {
     if ("serviceWorker" in navigator) {
       log.info("Service Worker API is available and in use.");
       navigator.serviceWorker.ready
-        .then(() => {
+        .then((registration) => {
           if (disposed) return;
           log.info("Service Worker is activated.");
           // Check whether WebGPU is available in Service Worker
@@ -236,7 +237,12 @@ const useWebLLM = () => {
           };
 
           sendEventInterval = setInterval(() => {
-            navigator.serviceWorker.controller?.postMessage(request);
+            const targetWorker =
+              registration.active ??
+              registration.waiting ??
+              registration.installing ??
+              navigator.serviceWorker.controller;
+            targetWorker?.postMessage(request);
           }, 200);
 
           webGPUCheckCallback = (event: MessageEvent) => {

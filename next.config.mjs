@@ -64,6 +64,9 @@ const nextConfig = {
     return config;
   },
   output: mode,
+  outputFileTracingExcludes: {
+    "/*": ["./.agents/**/*", "./.claude/**/*", "./.metagallego/**/*"],
+  },
   basePath,
   assetPrefix,
   env: {

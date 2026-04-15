@@ -11,6 +11,7 @@ Edu Chat is a client-heavy Next.js application that renders a chat interface and
 - `app/layout.tsx` defines global metadata, CSP, icons, manifest links, and service worker registration
 - `app/page.tsx` mounts the client entry point
 - `app/components/home.tsx` bootstraps routing, theming, model runtime selection, and application hydration
+- The client updates the document `lang` attribute from the active locale and probes the active service worker registration before falling back to the web worker runtime
 
 ### UI Layer
 
@@ -70,6 +71,7 @@ Assets affected by this rule include:
 - `npm run build`: standalone build with explicit Webpack pipeline
 - `npm run export`: static export with explicit Webpack pipeline
 - `npm run lint`: ESLint CLI using the flat config defined in `eslint.config.mjs`
+- Output tracing excludes local tooling folders such as `.agents/`, `.claude/`, and `.metagallego/` so workspace-specific junctions do not break production builds
 
 ### GitHub Pages
 
